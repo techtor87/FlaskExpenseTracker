@@ -1,0 +1,76 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+    <div id="table" class="col-sm-10 ml-auto mr-auto "></div>
+        <script>
+            new gridjs.Grid({
+                columns: [
+                    {id: 'index', name: 'ID'},
+                    {id: 'date', name: 'Date', attributes: {"contenteditable": "true"}},
+                    {id: 'description', name: 'Description', attributes: {"contenteditable": "true"}},
+                    {id: 'amount', name: 'Amount', attributes: {"contenteditable": "true"}},
+                    {id: 'type', name: 'Type', attributes: {"contenteditable": "true"}},
+                    {id: 'category', name: 'Category', attributes: {"contenteditable": "true"}},
+                    {id: 'account', name: 'Account', attributes: {"contenteditable": "true"}},
+                    {id: 'bank', name: 'Bank', attributes: {"contenteditable": "true"}},
+                ],
+                data: [
+                    {% for entry in entries %}
+                        {
+                            index: '{{ entry.id }}',
+                            date: '{{ entry.date }}',
+                            description: '{{ entry.description }}',
+                            amount: '{{ entry.amount }}',
+                            type: '{{ entry.type }}',
+                            category: '{{ entry.category }}',
+                            account: '{{ entry.account }}',
+                            bank: '{{ entry.bank }}',
+                        },
+                    {% endfor %}
+                ],
+                search: true,
+                sort: true,
+                pagination: true,
+                }).render(document.getElementById('table'));
+        </script>
+
+    <!-- <div class="col-sm-10 ml-auto mr-auto ">
+        <H2>Transaction History</H2>
+        <table class="table table-hover table-sm">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Account</th>
+                    <th scope="col">Bank</th>
+                    <th scope="col">Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries %}
+                    {% if entry.category in categories %}
+                        {% set category_class = '' %}
+                    {% else %}
+                        {% set category_class = 'class=table-warning' %}
+                    {% endif %}
+
+                        <tr {{ category_class }}>
+                            <th scope="row">{{loop.index}}</th>
+                            <td>{{ entry.date.strftime("%m/%d/%Y") }}</td>
+                            <td>{{ entry.description }}</td>
+                            <td>{{ entry.amount }}</td>
+                            <td>{{ entry.type }}</td>
+                            <td>{{ entry.category }}</td>
+                            <td>{{ entry.account }}</td>
+                            <td>{{ entry.bank }}</td>
+                            <td><a href="{{ url_for('delete', entry_id = entry.id) }}" class="btn btn-outline-danger btn-sm">Delete</a></td>
+                        </tr>
+                {% endfor %}
+        </tbody>
+        </table>
+    </div> -->
+{% endblock %}

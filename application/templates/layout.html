@@ -12,10 +12,25 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 
+    <link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+    <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.js"></script>
+
+    {% block scripts %}
+        <script>
+            new gridjs.Grid({
+
+            })
+        </script>
+    {% endblock %}
+
     {% if title %}
-        <title>ExpenseApp - {{ title }}</title>
+        <title>Personal Budget - {{ title }}</title>
     {% else %}
-        <title>ExpenseApp</title>
+        <title>Personal Budget</title>
     {% endif %}
 </head>
 
@@ -25,15 +40,17 @@
             <div class="col-md-12 p-0">
                 <header class="mb-4">
                     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                        <a class="navbar-brand" href="{{ url_for('index') }}">ExpenseIncome</a>
+                        <a class="navbar-brand" href="{{ url_for('dashboard') }}">Personal Budget Tracker</a>
                         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
                             aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                             <span class="navbar-toggler-icon"></span>
                         </button>
                         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                             <div class="navbar-nav ml-auto mr-3">
+                                <a class="nav-item nav-link" href="{{ url_for('dashboard') }}">Net Worth</a>
                                 <a class="nav-item nav-link" href="{{ url_for('add_expense') }}">Add</a>
-                                <a class="nav-item nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+                                <a class="nav-item nav-link" href="{{ url_for('import_expense') }}">Import</a>
+                                <a class="nav-item nav-link" href="{{ url_for('transactions_view') }}">Transactions</a>
                             </div>
                         </div>
                     </nav>
@@ -44,7 +61,7 @@
         <div class="row justify-content-center">
             <div class="col-md-10"></div>
                 {% with messages = get_flashed_messages(with_categories = True) %}
-                    {% if messages %}  
+                    {% if messages %}
                         {% for category, message in messages %}
                             <div class="alert alert-{{ category }}">
                                 {{ message }}

@@ -1,28 +1,59 @@
 from application import app
 from flask import render_template, url_for, redirect,flash, get_flashed_messages
-from application.form import UserDataForm
-from application.models import IncomeExpenses
+from application.form import UserDataForm, BulkDataForm, TRANSACTION_CATEGORY
+from application.models import IncomeExpenses, Account
 from application import db
+from datetime import datetime
 import json
 
-@app.route('/')
-def index():
-    entries = IncomeExpenses.query.order_by(IncomeExpenses.date.desc()).all()
-    return render_template('index.html', entries = entries)
+@app.route('/transactions')
+def transactions_view():
+    entries = IncomeExpenses.query
+    return render_template('transactions.html', entries = entries, categories = TRANSACTION_CATEGORY)
 
 
 @app.route('/add', methods = ["POST", "GET"])
 def add_expense():
     form = UserDataForm()
     if form.validate_on_submit():
-        entry = IncomeExpenses(type=form.type.data, category=form.category.data, amount=form.amount.data)
+        entry = IncomeExpenses(
+            date=form.date.data,
+            description=form.description.data,
+            amount=form.amount.data,
+            type=form.type.data,
+            category=form.category.data,
+            account=form.account.data,
+            bank=form.bank.data,
+        )
+
         db.session.add(entry)
         db.session.commit()
         flash(f"{form.type.data} has been added to {form.type.data}s", "success")
-        return redirect(url_for('index'))
-    return render_template('add.html', title="Add expenses", form=form)
-    
+        return redirect(url_for('transactions_view'))
+    return render_template('add.html', title="Add Transactions", form=form)
 
+
+@app.route('/import', methods = ["POST", "GET"])
+def import_expense():
+    form = BulkDataForm()
+    if form.validate_on_submit():
+        for line in form.bulk_data.data.splitlines():
+            data = line.split('\t')
+            if data != '':
+                entry = IncomeExpenses(
+                    date=datetime.strptime(data[0], '%m/%d/%Y').date(),
+                    description=data[1],
+                    amount=data[3],
+                    type=data[4],
+                    category=data[5],
+                    account=data[6],
+                    bank=data[6],
+                )
+                db.session.add(entry)
+        db.session.commit()
+        flash(f"{len(form.bulk_data.data.splitlines())} entries has been added", "success")
+        return redirect(url_for('transactions_view'))
+    return render_template('import.html', title="Import Transactions", form=form)
 
 @app.route('/delete-post/<int:entry_id>')
 def delete(entry_id):
@@ -30,10 +61,10 @@ def delete(entry_id):
     db.session.delete(entry)
     db.session.commit()
     flash("Entry deleted", "success")
-    return redirect(url_for("index"))
+    return redirect(url_for("transactions_view"))
 
 
-@app.route('/dashboard')
+@app.route('/')
 def dashboard():
     income_vs_expense = db.session.query(db.func.sum(IncomeExpenses.amount), IncomeExpenses.type).group_by(IncomeExpenses.type).order_by(IncomeExpenses.type).all()
 

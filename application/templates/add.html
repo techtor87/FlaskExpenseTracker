@@ -1,13 +1,22 @@
 {% extends 'layout.html' %}
 {% block content %}
 <div class="col-xs-10 col-sm-6 col-md-6">
-    <h2>add expenses Page</h2>
     <div class="card card-style mb-2">
         <div class="card-body">
             <form action="" method="POST">
                 {{ form.csrf_token() }}
                 <fieldset class="form-group">
-                    <legend class="mb-4">Expenses And Incomes</legend>
+                    <legend class="mb-4">Add Single Transaction</legend>
+                    <div class="form-group">
+                        {{ form.date.label(class = "form-control-label") }}
+                        {{ form.date(class = "form-control form-control-sm") }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.description.label(class = "form-control-label") }}
+                        {{ form.description(class = "form-control form-control-sm") }}
+                    </div>
+
                     <div class="form-group">
                         {{ form.amount.label(class="form-control-label") }}
                         {% if form.amount.errors %}
@@ -21,17 +30,27 @@
                         {{ form.amount(class="form-control form-control-sm") }}
                         {% endif %}
                     </div>
-            
+
                     <div class="form-group">
                         {{ form.type.label(class = "form-control-label") }}
                         {{ form.type(class = "form-control form-control-sm") }}
                     </div>
-            
+
                     <div class="form-group">
                         {{ form.category.label(class = "form-control-label") }}
                         {{ form.category(class = "form-control form-control-sm") }}
                     </div>
-            
+
+                    <div class="form-group">
+                        {{ form.account.label(class = "form-control-label") }}
+                        {{ form.account(class = "form-control form-control-sm") }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.bank.label(class = "form-control-label") }}
+                        {{ form.bank(class = "form-control form-control-sm") }}
+                    </div>
+
                     <div class="form-group border-bottom pb-3">
                         {{ form.submit(class="btn btn-outline-info")}}
                     </div>
@@ -40,5 +59,5 @@
         </div>
     </div>
 </div>
-    
+
 {% endblock %}
