@@ -10,6 +10,8 @@
         href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 
     <link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
@@ -20,11 +22,6 @@
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.js"></script>
 
     {% block scripts %}
-        <script>
-            new gridjs.Grid({
-
-            })
-        </script>
     {% endblock %}
 
     {% if title %}
@@ -41,6 +38,12 @@
                 <header class="mb-4">
                     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
                         <a class="navbar-brand" href="{{ url_for('dashboard') }}">Personal Budget Tracker</a>
+                        {% if date is defined %}
+                        <form method="POST">
+                            <label for="start_date"></label>
+                            <input type="month" id="start_date" name="start_date" value="{{ date }}" required onchange="this.form.submit()" />
+                        </form>
+                        {% endif %}
                         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
                             aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                             <span class="navbar-toggler-icon"></span>

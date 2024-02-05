@@ -4,7 +4,7 @@
     <div class="card card-style mb-2">
         <div class="card-body">
             <div class="chart-container" style="position: relative;">
-                <canvas id="income_vs_expense"></canvas>
+                <canvas id="income_vs_expense_canvas"></canvas>
             </div>
         </div>
     </div>
@@ -14,7 +14,7 @@
     <div class="card card-style mb-2">
         <div class="card-body">
             <div class="chart-container" style="position: relative;">
-                <canvas id="income_vs_category"></canvas>
+                <canvas id="income_vs_category_canvas"></canvas>
             </div>
         </div>
     </div>
@@ -24,7 +24,7 @@
     <div class="card card-style mb-2">
         <div class="card-body">
             <div class="chart-container" style="position: relative;">
-                <canvas id="overtime_expenditure"></canvas>
+                <canvas id="overtime_expenditure_canvas"></canvas>
             </div>
         </div>
     </div>
@@ -32,20 +32,18 @@
 
 {% block javascript %}
 <script>
-    let income_vs_expense_data = JSON.parse({{ income_vs_expense | tojson }})
-    let income_category_data = JSON.parse({{ income_category | tojson}})
-
     Chart.scaleService.updateScaleDefaults('linear', {
             ticks: {
                 min: 0
             }
     });
 
-
-    let income_vs_expense_chart = new Chart(income_vs_expense, {
+    let income_vs_expense_labels = JSON.parse({{ income_vs_expense_labels | tojson }})
+    let income_vs_expense_data = JSON.parse({{ income_vs_expense_data | tojson }})
+    let income_vs_expense_chart = new Chart(income_vs_expense_canvas, {
             type: 'pie',
             data: {
-            labels: ['expense', 'income'],
+                labels: income_vs_expense_labels,
                 datasets: [{
                     label: "Income Vs Expenses",
                     data: income_vs_expense_data,
@@ -79,10 +77,12 @@
             }
         })
 
-    let income_vs_category_chart = new Chart(income_vs_category, {
+    let income_category_labels = JSON.parse({{ income_category_labels | tojson}})
+    let income_category_data = JSON.parse({{ income_category_data | tojson}})
+    let income_vs_category_chart = new Chart(income_vs_category_canvas, {
             type: 'bar',
             data: {
-                labels: ['investment', 'rent', 'salary', 'side_hustle'],
+                labels: income_category_labels,
                 datasets: [{
                     label: "Categories Of Income",
                     data: income_category_data,
@@ -114,17 +114,17 @@
             }
             }
         })
-        over_time_expenditure = JSON.parse({{over_time_expenditure | tojson}})
-        labels = JSON.parse({{ dates_label  | tojson}})
 
-        new Chart(document.getElementById("overtime_expenditure"), {
+        let over_time_expenditure = JSON.parse({{over_time_expenditure | tojson}})
+        let labels = JSON.parse({{ dates_label  | tojson}})
+        new Chart(document.getElementById("overtime_expenditure_canvas"), {
                 type: "line",
                 data:
                 {
                     labels: labels,
                     datasets: [{
                         label: "Expenditure Over Time",
-                        
+
                         data: over_time_expenditure,
                         fill: false,
                         borderColor: "rgb(75, 192, 192)",

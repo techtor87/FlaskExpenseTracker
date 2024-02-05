@@ -8,6 +8,7 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = "JLKJJJO3IURYoiouolnojojouuoo=5y9y9youjuy952oohhbafdnoglhoho"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///transactions.db'
+app.config['DEBUG'] = True
 
 db = SQLAlchemy(app)
 
