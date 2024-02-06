@@ -12,9 +12,22 @@ from application.models import IncomeExpenses
 
 @app.route("/transactions", methods=["GET", "POST"])
 def transactions_view():
-    entries = IncomeExpenses.query
+    if form_date := request.form.get("start_date"):
+        start_date = datetime.strptime(form_date, "%Y-%m")
+    else:
+        start_date = datetime.now()
+
+    if form_date := request.form.get("end_date"):
+        end_date = datetime.strptime(form_date, "%Y-%m")
+    else:
+        end_date = start_date + relativedelta(months=1)
+
+    entries = IncomeExpenses.query.filter(
+        IncomeExpenses.date >= start_date,
+        IncomeExpenses.date < end_date
+    )
     return render_template(
-        "transactions.html", entries=entries, categories=TRANSACTION_CATEGORY
+        "transactions.html", entries=entries, categories=TRANSACTION_CATEGORY, start_date=start_date.strftime("%Y-%m"), end_date=end_date.strftime("%Y-%m")
     )
 
 
@@ -80,6 +93,11 @@ def dashboard():
     else:
         start_date = datetime.now()
 
+    if form_date := request.form.get("end_date"):
+        end_date = datetime.strptime(form_date, "%Y-%m")
+    else:
+        end_date = start_date + relativedelta(months=1)
+
     income_vs_expense = (
         db.session.query(IncomeExpenses.type, func.sum(IncomeExpenses.amount))
         .filter(IncomeExpenses.date >= start_date,
@@ -88,7 +106,6 @@ def dashboard():
         .all()
     )
 
-    end_date = start_date + relativedelta(months=1)
 
     category_comparison = (
         db.session.query(IncomeExpenses.category, func.sum(IncomeExpenses.amount))
