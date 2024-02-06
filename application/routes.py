@@ -75,18 +75,19 @@ def delete(entry_id):
 
 @app.route("/", methods=["GET", "POST"])
 def dashboard():
-    if request.method == "POST":
-        data_date = request.form.get("start_date")
+    if form_date := request.form.get("start_date"):
+        start_date = datetime.strptime(form_date, "%Y-%m")
     else:
-        data_date = datetime.now()
+        start_date = datetime.now()
 
     income_vs_expense = (
         db.session.query(IncomeExpenses.type, func.sum(IncomeExpenses.amount))
+        .filter(IncomeExpenses.date >= start_date,
+                IncomeExpenses.date < end_date)
         .group_by(IncomeExpenses.type)
         .all()
     )
 
-    start_date = data_date.strftime("")
     end_date = start_date + relativedelta(months=1)
 
     category_comparison = (
@@ -133,5 +134,6 @@ def dashboard():
         income_category_data=json.dumps(income_category_data),
         over_time_expenditure=json.dumps(over_time_expenditure),
         dates_label=json.dumps(dates_label),
-        date=data_date,
+        start_date=start_date.strftime("%Y-%m"),
+        end_date=end_date.strftime("%Y-%m"),
     )

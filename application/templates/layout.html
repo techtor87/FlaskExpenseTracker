@@ -38,10 +38,12 @@
                 <header class="mb-4">
                     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
                         <a class="navbar-brand" href="{{ url_for('dashboard') }}">Personal Budget Tracker</a>
-                        {% if date is defined %}
+                        {% if start_date is defined %}
                         <form method="POST">
                             <label for="start_date"></label>
-                            <input type="month" id="start_date" name="start_date" value="{{ date }}" required onchange="this.form.submit()" />
+                            <input type="month" id="start_date" name="start_date" value="{{ start_date }}" required onchange="this.form.submit()" />
+                            <label for="end_date"></label>
+                            <input type="month" id="end_date" name="end_date" value="{{ end_date }}" required onchange="this.form.submit()" />
                         </form>
                         {% endif %}
                         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
