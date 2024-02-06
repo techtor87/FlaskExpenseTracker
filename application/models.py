@@ -21,4 +21,3 @@ class Account(db.Model):
     account = db.Column(db.String(30), nullable=False)
     value = db.Column(db.DECIMAL(10, 2), nullable=False)
     retirement = db.Column(db.Boolean, default=False)
-    retirement = db.Column(db.Boolean, default=False)
