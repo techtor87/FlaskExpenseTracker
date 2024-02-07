@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
-from flask import flash, redirect, render_template, request, url_for
+from flask import flash, redirect, render_template, request, url_for, jsonify
 from sqlalchemy import func
 
 from application import app, db
@@ -135,7 +135,7 @@ def dashboard():
     income_category_data = [float(row[1]) for row in category_comparison]
 
     income_expense_labels = [row[0] for row in income_vs_expense]
-    income_expense_data = [float(row[1]) for row in income_vs_expense]
+    income_expense_data = [{'type': row[0], 'total': float(row[1])} for row in income_vs_expense]
 
     over_time_expenditure = []
     dates_label = []

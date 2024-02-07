@@ -4,7 +4,7 @@
     <div class="card card-style mb-2">
         <div class="card-body">
             <div class="chart-container" style="position: relative;">
-                <canvas id="income_vs_expense_canvas"></canvas>
+                <div id="income_vs_expense_canvas"></div>
             </div>
         </div>
     </div>
@@ -14,7 +14,7 @@
     <div class="card card-style mb-2">
         <div class="card-body">
             <div class="chart-container" style="position: relative;">
-                <canvas id="income_vs_category_canvas"></canvas>
+                <div id="expense_vs_category_canvas"></div>
             </div>
         </div>
     </div>
@@ -24,116 +24,166 @@
     <div class="card card-style mb-2">
         <div class="card-body">
             <div class="chart-container" style="position: relative;">
-                <canvas id="overtime_expenditure_canvas"></canvas>
+                <div id="overtime_expenditure_canvas"></div>
             </div>
         </div>
     </div>
 </div>
 
-{% block javascript %}
 <script>
-    Chart.scaleService.updateScaleDefaults('linear', {
-            ticks: {
-                min: 0
-            }
-    });
-
-    let income_vs_expense_labels = JSON.parse({{ income_vs_expense_labels | tojson }})
-    let income_vs_expense_data = JSON.parse({{ income_vs_expense_data | tojson }})
-    let income_vs_expense_chart = new Chart(income_vs_expense_canvas, {
+const income_vs_expense_options = {
+    // Container: HTML Element to hold the chart
+    container: document.getElementById('income_vs_expense_canvas'),
+    title: {text: 'Income vs Expense'},
+    // Data: Data to be displayed in the chart
+    data: JSON.parse( {{ income_vs_expense_data | tojson }} ),
+    // Series: Defines which chart type and data to use
+    series: [
+        {
             type: 'pie',
-            data: {
-                labels: income_vs_expense_labels,
-                datasets: [{
-                    label: "Income Vs Expenses",
-                    data: income_vs_expense_data,
-                    backgroundColor: ['#5DA5DA ', '#FAA43A', '#60BD68',
-                        '#B276B2', '#E16851', '#FB8267'],
+            calloutLabelKey: 'type',
+            angleKey: 'total',
+            sectorLabelKey: 'total',
+            calloutLabel: { enabled: false },
+        }
+    ],
+};
 
-                    borderWidth: 1,
-                    hoverBorderColor: "black",
-                    hoverBorderWidth: 2,
-                    hoverBackgroundColor: 'rgba(154, 245, 140)',
-                    pointHoverRadius: 5
-                }],
-            },
-            options: {
-                    title: {
-                        display: true,
-                            text: "Income Vs Expenses",
-                                fontSize: 20,
-                    },
-                    legend: {
-                        position: "right",
-                            labels: {
-                            fontColor: "gray"
-                        },
-                        display: true,
-                    },
+const expense_vs_category_options = {
+    // Container: HTML Element to hold the chart
+    container: document.getElementById('expense_vs_category_canvas'),
+    title: {text: 'Expenses by Category'},
+    // Data: Data to be displayed in the chart
+    data: JSON.parse( {{ income_vs_expense_data }} ),
+    // Series: Defines which chart type and data to use
+    series: [{ type: 'bar', xKey: 'month', yKey: 'iceCreamSales' }],
+};
 
-                    elements: {
-                        hitRadius: 3,
-                    }
-            }
-        })
+const overtime_expenditure_options = {
+    // Container: HTML Element to hold the chart
+    container: document.getElementById('overtime_expenditure_canvas'),
+    title: {text: 'Expense over Time'},
+    // Data: Data to be displayed in the chart
+    data: [
+        { month: 'Jan', avgTemp: 2.3, iceCreamSales: 162000 },
+        { month: 'Mar', avgTemp: 6.3, iceCreamSales: 302000 },
+        { month: 'May', avgTemp: 16.2, iceCreamSales: 800000 },
+        { month: 'Jul', avgTemp: 22.8, iceCreamSales: 1254000 },
+        { month: 'Sep', avgTemp: 14.5, iceCreamSales: 950000 },
+        { month: 'Nov', avgTemp: 8.9, iceCreamSales: 200000 },
+    ],
+    // Series: Defines which chart type and data to use
+    series: [{ type: 'bar', xKey: 'month', yKey: 'iceCreamSales' }],
+};
 
-    let income_category_labels = JSON.parse({{ income_category_labels | tojson}})
-    let income_category_data = JSON.parse({{ income_category_data | tojson}})
-    let income_vs_category_chart = new Chart(income_vs_category_canvas, {
-            type: 'bar',
-            data: {
-                labels: income_category_labels,
-                datasets: [{
-                    label: "Categories Of Income",
-                    data: income_category_data,
-            backgroundColor: ['#5DA5DA ', '#FAA43A', '#60BD68',
-                '#B276B2', '#E16851', '#FB8267'],
-            borderWidth: 1,
-            hoverBorderColor: "black",
-            hoverBorderWidth: 2,
-            hoverBackgroundColor: 'rgba(154, 245, 140)',
-            pointHoverRadius: 5
-        }],
-            },
-        options: {
-                title: {
-                    display: true,
-                        text: "Income Categories",
-                            fontSize: 20,
-            },
-                legend: {
-                    position: "right",
-                        labels: {
-                        fontColor: "gray"
-                    },
-                    display: true,
-            },
+const chart_1 = agCharts.AgCharts.create(income_vs_expense_options);
+const chart_2 = agCharts.AgCharts.create(expense_vs_category_options);
+const chart_3 = agCharts.AgCharts.create(overtime_expenditure_options);
 
-                elements: {
-                    hitRadius: 3,
-            }
-            }
-        })
 
-        let over_time_expenditure = JSON.parse({{over_time_expenditure | tojson}})
-        let labels = JSON.parse({{ dates_label  | tojson}})
-        new Chart(document.getElementById("overtime_expenditure_canvas"), {
-                type: "line",
-                data:
-                {
-                    labels: labels,
-                    datasets: [{
-                        label: "Expenditure Over Time",
 
-                        data: over_time_expenditure,
-                        fill: false,
-                        borderColor: "rgb(75, 192, 192)",
-                        lineTension: 0.1
-                    }]
-                },
-                options: {}
-            });
+
+    // Chart.scaleService.updateScaleDefaults('linear', {
+    //         ticks: {
+    //             min: 0
+    //         }
+    // });
+
+    // let income_vs_expense_labels = JSON.parse({{ income_vs_expense_labels | tojson }})
+    // let income_vs_expense_data = JSON.parse({{ income_vs_expense_data | tojson }})
+    // let income_vs_expense_chart = new Chart(income_vs_expense_canvas, {
+    //         type: 'pie',
+    //         data: {
+    //             labels: income_vs_expense_labels,
+    //             datasets: [{
+    //                 label: "Income Vs Expenses",
+    //                 data: income_vs_expense_data,
+    //                 backgroundColor: ['#5DA5DA ', '#FAA43A', '#60BD68',
+    //                     '#B276B2', '#E16851', '#FB8267'],
+
+    //                 borderWidth: 1,
+    //                 hoverBorderColor: "black",
+    //                 hoverBorderWidth: 2,
+    //                 hoverBackgroundColor: 'rgba(154, 245, 140)',
+    //                 pointHoverRadius: 5
+    //             }],
+    //         },
+    //         options: {
+    //                 title: {
+    //                     display: true,
+    //                         text: "Income Vs Expenses",
+    //                             fontSize: 20,
+    //                 },
+    //                 legend: {
+    //                     position: "right",
+    //                         labels: {
+    //                         fontColor: "gray"
+    //                     },
+    //                     display: true,
+    //                 },
+
+    //                 elements: {
+    //                     hitRadius: 3,
+    //                 }
+    //         }
+    //     })
+
+    // let income_category_labels = JSON.parse({{ income_category_labels | tojson}})
+    // let income_category_data = JSON.parse({{ income_category_data | tojson}})
+    // let income_vs_category_chart = new Chart(income_vs_category_canvas, {
+    //         type: 'bar',
+    //         data: {
+    //             labels: income_category_labels,
+    //             datasets: [{
+    //                 label: "Categories Of Income",
+    //                 data: income_category_data,
+    //         backgroundColor: ['#5DA5DA ', '#FAA43A', '#60BD68',
+    //             '#B276B2', '#E16851', '#FB8267'],
+    //         borderWidth: 1,
+    //         hoverBorderColor: "black",
+    //         hoverBorderWidth: 2,
+    //         hoverBackgroundColor: 'rgba(154, 245, 140)',
+    //         pointHoverRadius: 5
+    //     }],
+    //         },
+    //     options: {
+    //             title: {
+    //                 display: true,
+    //                     text: "Income Categories",
+    //                         fontSize: 20,
+    //         },
+    //             legend: {
+    //                 position: "right",
+    //                     labels: {
+    //                     fontColor: "gray"
+    //                 },
+    //                 display: true,
+    //         },
+
+    //             elements: {
+    //                 hitRadius: 3,
+    //         }
+    //         }
+    //     })
+
+    //     let over_time_expenditure = JSON.parse({{over_time_expenditure | tojson}})
+    //     let labels = JSON.parse({{ dates_label  | tojson}})
+    //     new Chart(document.getElementById("overtime_expenditure_canvas"), {
+    //             type: "line",
+    //             data:
+    //             {
+    //                 labels: labels,
+    //                 datasets: [{
+    //                     label: "Expenditure Over Time",
+
+    //                     data: over_time_expenditure,
+    //                     fill: false,
+    //                     borderColor: "rgb(75, 192, 192)",
+    //                     lineTension: 0.1
+    //                 }]
+    //             },
+    //             options: {}
+    //         });
 </script>
-{% endblock%}
 
 {% endblock %}
