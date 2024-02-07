@@ -84,7 +84,6 @@ def import_expense():
                         account=data[6],
                         bank=data[6],
                     )
-                    db.session.add(entry)
 
         db.session.commit()
         flash(
@@ -116,35 +115,35 @@ def dashboard():
         end_date = start_date + relativedelta(months=1)
 
     income_vs_expense = (
-        db.session.query(IncomeExpenses.type, func.sum(IncomeExpenses.amount))
-        .filter(IncomeExpenses.date >= start_date,
-                IncomeExpenses.date < end_date)
-        .group_by(IncomeExpenses.type)
+        db.session.execute(select(IncomeExpenses.date, IncomeExpenses.type, func.sum(IncomeExpenses.amount))
+        .filter(IncomeExpenses.category != "Transfer",
+                IncomeExpenses.type == 'debit')
+        .group_by(IncomeExpenses.type))
         .all()
     )
 
 
     category_comparison = (
-        db.session.query(IncomeExpenses.category, func.sum(IncomeExpenses.amount))
+        db.session.execute(select(IncomeExpenses.category, func.sum(IncomeExpenses.amount))
         .filter(
             IncomeExpenses.category != "Transfer",
             IncomeExpenses.type == "debit",
             IncomeExpenses.date >= start_date,
             IncomeExpenses.date < end_date,
         )
-        .group_by(IncomeExpenses.category)
+        .group_by(IncomeExpenses.category))
         .all()
     )
 
     dates = (
-        db.session.query(IncomeExpenses.date, func.sum(IncomeExpenses.amount))
+        db.session.execute(select(IncomeExpenses.date, func.sum(IncomeExpenses.amount))
         .filter(
             IncomeExpenses.category != "Transfer",
             IncomeExpenses.type == "debit",
             IncomeExpenses.date >= start_date,
             IncomeExpenses.date < end_date,
         )
-        .group_by(IncomeExpenses.date)
+        .group_by(IncomeExpenses.date))
         .all()
     )
 
