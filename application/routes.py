@@ -3,7 +3,7 @@ from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
 from flask import flash, redirect, render_template, request, url_for, jsonify
-from sqlalchemy import func
+from sqlalchemy import func, select
 
 from application import app, db
 from application.form import TRANSACTION_CATEGORY, BulkDataForm, UserDataForm
@@ -56,19 +56,36 @@ def add_expense():
 def import_expense():
     form = BulkDataForm()
     if form.validate_on_submit():
-        for line in form.bulk_data.data.splitlines():
-            data = line.split("\t")
-            if data != "" and "Date" not in data[0]:
-                entry = IncomeExpenses(
-                    date=datetime.strptime(data[0], "%m/%d/%Y").date(),
-                    description=data[1],
-                    amount=data[3],
-                    type=data[4],
-                    category=data[5],
-                    account=data[6],
-                    bank=data[6],
-                )
-                db.session.add(entry)
+        if '\t' in form.bulk_data.data:
+            for line in form.bulk_data.data.splitlines():
+                data = line.split("\t")
+                if data != "" and "Date" not in data[0]:
+                    entry = IncomeExpenses(
+                        date=datetime.strptime(data[0], "%m/%d/%Y").date(),
+                        description=data[1],
+                        amount=data[3],
+                        type=data[4],
+                        category=data[5],
+                        account=data[6],
+                        bank=data[6],
+                    )
+                    db.session.add(entry)
+        elif '"Date",' in form.bulk_data.data:
+            for line in form.bulk_data.data.splitlines():
+                data = line.split(",")
+                if data != "" and '"Date"' not in data[0]:
+                    data = [item.replace('"', '') for item in data]
+                    entry = IncomeExpenses(
+                        date=datetime.strptime(data[0], "%m/%d/%Y").date(),
+                        description=data[1],
+                        amount=data[3],
+                        type=data[4],
+                        category=data[5],
+                        account=data[6],
+                        bank=data[6],
+                    )
+                    db.session.add(entry)
+
         db.session.commit()
         flash(
             f"{len(form.bulk_data.data.splitlines())} entries has been added", "success"
@@ -131,26 +148,15 @@ def dashboard():
         .all()
     )
 
-    income_category_labels = [row[0] for row in category_comparison]
-    income_category_data = [float(row[1]) for row in category_comparison]
-
-    income_expense_labels = [row[0] for row in income_vs_expense]
-    income_expense_data = [{'type': row[0], 'total': float(row[1])} for row in income_vs_expense]
-
-    over_time_expenditure = []
-    dates_label = []
-    for date, amount in dates:
-        dates_label.append(date.strftime("%m-%d-%y"))
-        over_time_expenditure.append(float(amount))
+    income_category_data = [{'category': row[0], 'total': float(row[1])} for row in category_comparison]
+    income_expense_data = [{'date': row[0].strftime("%m-%d-%y"), 'type': row[1], 'total': float(row[2])} for row in income_vs_expense]
+    over_time_expenditure = [{'date': row[0].strftime("%m-%d-%y"), 'total': float(row[1])} for row in dates]
 
     return render_template(
         "dashboard.html",
-        income_vs_expense_labels=json.dumps(income_expense_labels),
         income_vs_expense_data=json.dumps(income_expense_data),
-        income_category_labels=json.dumps(income_category_labels),
         income_category_data=json.dumps(income_category_data),
         over_time_expenditure=json.dumps(over_time_expenditure),
-        dates_label=json.dumps(dates_label),
         start_date=start_date.strftime("%Y-%m"),
         end_date=end_date.strftime("%Y-%m"),
     )
