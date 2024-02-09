@@ -48,9 +48,7 @@
         function onRowValueChanged(event) {
             var data = event.data;
             console.log('onRowValueChanged: ('+data+')')
-            $.post("/transactions", function( data ){
-                javascript_data: data
-            });
+            $.getJSON("/update", {'new_data': JSON.stringify(data)});
         }
 
         const myGridElement = document.querySelector('#table');
