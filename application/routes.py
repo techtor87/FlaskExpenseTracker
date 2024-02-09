@@ -2,15 +2,16 @@ import json
 from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
-from flask import flash, redirect, render_template, request, url_for, jsonify, abort, make_response
+from flask import Blueprint, flash, redirect, render_template, request, url_for, jsonify, abort, make_response
 from sqlalchemy import func, select, text
 
-from application import app, db
+from application import db
 from application.form import TRANSACTION_CATEGORY, BulkDataForm, UserDataForm
 from application.models import IncomeExpenses
 
+bp = Blueprint('bp', __name__)
 
-@app.route("/transactions", methods=["GET", "POST"])
+@bp.route("/transactions", methods=["GET", "POST"])
 def transactions_view():
     if form_date := request.form.get("start_date"):
         start_date = datetime.strptime(form_date, "%Y-%m")
@@ -31,7 +32,7 @@ def transactions_view():
     )
 
 
-@app.route("/add", methods=["POST", "GET"])
+@bp.route("/add", methods=["POST", "GET"])
 def add_expense():
     form = UserDataForm()
     if form.validate_on_submit():
@@ -52,7 +53,7 @@ def add_expense():
     return render_template("add.html", title="Add Transactions", form=form)
 
 
-@app.route("/import", methods=["POST", "GET"])
+@bp.route("/import", methods=["POST", "GET"])
 def import_expense():
     form = BulkDataForm()
     if form.validate_on_submit():
@@ -93,7 +94,7 @@ def import_expense():
     return render_template("import.html", title="Import Transactions", form=form)
 
 
-@app.route("/delete-post/<int:entry_id>")
+@bp.route("/delete-post/<int:entry_id>")
 def delete(entry_id):
     entry = IncomeExpenses.query.get_or_404(int(entry_id))
     db.session.delete(entry)
@@ -102,7 +103,7 @@ def delete(entry_id):
     return redirect(url_for("transactions_view"))
 
 
-@app.route("/", methods=["GET", "POST"])
+@bp.route("/", methods=["GET", "POST"])
 def dashboard():
     if form_date := request.form.get("start_date"):
         start_date = datetime.strptime(form_date, "%Y-%m")
@@ -169,7 +170,7 @@ def dashboard():
         end_date=end_date.strftime("%Y-%m"),
     )
 
-@app.route("/dashboard/data", methods=['GET', 'POST'])
+@bp.route("/dashboard/data", methods=['GET', 'POST'])
 def send_dashboard_data():
     data = request.get_json()
     start_date = datetime.strptime(data['start_date'], "%Y-%m")
@@ -227,7 +228,7 @@ def send_dashboard_data():
 def check_content_type(content_type):
     """Checks that the media type is correct"""
     if "Content-Type" not in request.headers:
-        app.logger.error("No Content-Type specified.")
+        # bp.logger.error("No Content-Type specified.")
         abort(
             415, # HTTP_415_UNSUPPORTED_MEDIA_TYPE,
             f"Content-Type must be {content_type}",
@@ -236,7 +237,7 @@ def check_content_type(content_type):
     if request.headers["Content-Type"] == content_type:
         return
 
-    app.logger.error("Invalid Content-Type: %s", request.headers["Content-Type"])
+    # bp.logger.error("Invalid Content-Type: %s", request.headers["Content-Type"])
     abort(
         415, # HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         f"Content-Type must be {content_type}",

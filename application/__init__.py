@@ -84,4 +84,5 @@ transfer_id = None
 
 item_id = None
 
-from application import routes
+from application.routes import bp
+app.register_blueprint(bp)
