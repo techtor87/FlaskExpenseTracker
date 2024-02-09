@@ -96,12 +96,3 @@ class UserDataForm(FlaskForm):
     account = StringField("Account Name", validators=[DataRequired()])
     bank = StringField("Account Name", validators=[DataRequired()])
     submit = SubmitField("Add Transaction")
-    type = SelectField(
-        "Type",
-        validators=[DataRequired()],
-        choices=[("debit", "debit"), ("credit", "credit")],
-    )
-    category = SelectField("Category", choices=TRANSACTION_CATEGORY)
-    account = StringField("Account Name", validators=[DataRequired()])
-    bank = StringField("Account Name", validators=[DataRequired()])
-    submit = SubmitField("Add Transaction")

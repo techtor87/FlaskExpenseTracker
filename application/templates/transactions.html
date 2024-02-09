@@ -37,7 +37,7 @@
                     values: ['credit', 'debit']
                 }},
                 { field: 'category', cellEditor: 'agSelectCellEditor', cellEditorParams: {
-                    values: []
+                    values:  {{ categories }}
                 }},
                 { field: 'account', flex: 1.5},
                 { field: 'bank', flex: 2},
@@ -47,7 +47,10 @@
 
         function onRowValueChanged(event) {
             var data = event.data;
-            console.log('onRowValueChanged: ('+data.index+', '+data.description+')')
+            console.log('onRowValueChanged: ('+data+')')
+            $.post("/transactions", function( data ){
+                javascript_data: data
+            });
         }
 
         const myGridElement = document.querySelector('#table');
