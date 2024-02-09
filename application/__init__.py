@@ -9,7 +9,6 @@ from plaid.model.products import Products
 from plaid.api import plaid_api
 
 
-
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = "JLKJJJO3IURYoiouolnojojouuoo=5y9y9youjuy952oohhbafdnoglhoho"

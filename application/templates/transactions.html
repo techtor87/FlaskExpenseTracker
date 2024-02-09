@@ -37,7 +37,7 @@
                     values: ['credit', 'debit']
                 }},
                 { field: 'category', cellEditor: 'agSelectCellEditor', cellEditorParams: {
-                    values:  {{ categories }}
+                    values:  {{ categories | tojson }}
                 }},
                 { field: 'account', flex: 1.5},
                 { field: 'bank', flex: 2},

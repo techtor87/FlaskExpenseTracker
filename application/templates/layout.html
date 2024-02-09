@@ -24,17 +24,17 @@
     <script src="https://cdn.jsdelivr.net/npm/ag-charts-community/dist/umd/ag-charts-community.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 
-    {% block scripts %}
-    {% endblock %}
+    {%- block scripts -%}
+    {%- endblock -%}
 
-    {% if title %}
+    {%- if title -%}
         <title>Personal Budget - {{ title }}</title>
-    {% else %}
+    {%- else -%}
         <title>Personal Budget</title>
-    {% endif %}
+    {%- endif -%}
 </head>
 
-<body onload="update_page_data()">
+<body {% if start_date is defined -%} onload="update_page_data()" {%- endif %}>
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12 p-0">
@@ -81,6 +81,11 @@
             </div>
         </div>
     </div>
+    <script>
+        function update_page_data(res) {
+            return;
+        }
+    </script>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
         crossorigin="anonymous"></script>
