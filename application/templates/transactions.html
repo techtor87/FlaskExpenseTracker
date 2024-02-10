@@ -3,7 +3,10 @@
 
     <div id="table" class="ag-theme-quartz-dark" style="width: 95vw; height: 85vh"></div>
     <script>
+        let gridApi;
+
         const gridOptions = {
+            rowModelType: 'serverSide',
             autoSizeStrategy: {type: 'fitCellContents'},
             pagination: true,
             editType: 'fullRow',
@@ -12,21 +15,6 @@
                 filter: true,
                 floatingFilter: true
             },
-            // Row Data: The data to be displayed.
-            rowData: [
-                {% for entry in entries %}
-                    {
-                        index: '{{ entry.id }}',
-                        date: '{{ entry.date }}',
-                        description: '{{ entry.description }}',
-                        amount: '{{ entry.amount }}',
-                        type: '{{ entry.type }}',
-                        category: '{{ entry.category }}',
-                        account: '{{ entry.account }}',
-                        bank: '{{ entry.bank }}',
-                    },
-                {% endfor %}
-            ],
             // Column Definitions: Defines & controls grid columns.
             columnDefs: [
                 { field: 'index', filter: false, editable: false },
@@ -45,14 +33,86 @@
             onRowValueChanged: onRowValueChanged,
         };
 
+        // setup the grid after the page has finished loading
+        document.addEventListener('DOMContentLoaded', function () {
+        var gridDiv = document.querySelector('#table');
+        gridApi = agGrid.createGrid(gridDiv, gridOptions);
+
+        fetch('/data/' + document.getElementById('start_date').value + '/'+document.getElementById('end_date').value)
+            .then((response) => response.json())
+            .then(function (data) {
+            // adding row id to data
+            var idSequence = 0;
+            data['entries'].forEach(function (item) {
+                item.id = idSequence++;
+            });
+
+            // setup the fake server with entire dataset
+            var fakeServer = createFakeServer(data);
+
+            // create datasource with a reference to the fake server
+            var datasource = createServerSideDatasource(fakeServer);
+
+            // register the datasource with the grid
+            gridApi.setGridOption('serverSideDatasource', datasource);
+            });
+        });
+
+        function createServerSideDatasource(server) {
+            return {
+                getRows: (params) => {
+                    console.log('[Datasource] - rows requestsed by grid: ', params.request);
+
+                    var response = server.getData(params.request);
+
+                    setTimeout(() => {
+                        if (response.success) {
+                            params.success({
+                                rowData: response.rows,
+                                rowCount: response.lastRow,
+                            });
+                        } else {
+                            params.fail();
+                        }
+                    }, 500);
+                },
+            };
+        }
+
+        function createFakeServer(allData) {
+            return {
+                getData: (request) => {
+                // take a slice of the total rows for requested block
+                var rowsForBlock = allData['entries'].slice(request.startRow, request.endRow);
+
+                // here we are pretending we don't know the last row until we reach it!
+                var lastRow = getLastRowIndex(request, rowsForBlock);
+
+                return {
+                    success: true,
+                    rows: rowsForBlock,
+                    lastRow: lastRow,
+                };
+                },
+            };
+            }
+
+        function getLastRowIndex(request, results) {
+            if (!results) return undefined;
+            var currentLastRow = (request.startRow || 0) + results.length;
+
+            // if on or after the last block, work out the last row, otherwise return 'undefined'
+            return currentLastRow < (request.endRow || 0) ? currentLastRow : undefined;
+        }
+
         function onRowValueChanged(event) {
             var data = event.data;
             console.log('onRowValueChanged: ('+data+')')
             $.getJSON("/update", {'new_data': JSON.stringify(data)});
         }
 
-        const myGridElement = document.querySelector('#table');
-        agGrid.createGrid(myGridElement, gridOptions);
+        // const myGridElement = document.querySelector('#table');
+        // agGrid.createGrid(myGridElement, gridOptions);
 
         </script>
 

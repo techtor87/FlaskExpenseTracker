@@ -50,24 +50,23 @@ def update_row():
     db.session.commit()
     return jsonify()
 
-@bp.route('/data')
-def get_table_data():
-    if form_date := request.form.get("start_date"):
-        start_date = datetime.strptime(form_date, "%Y-%m")
-    else:
-        start_date = datetime.now()
+@bp.route('/data/<start_date>/<end_date>')
+def get_table_data(start_date, end_date):
+    start_date = datetime.strptime(start_date, "%Y-%m")
+    end_date = datetime.strptime(end_date, "%Y-%m")
 
-    if form_date := request.form.get("end_date"):
-        end_date = datetime.strptime(form_date, "%Y-%m")
-    else:
-        end_date = start_date + relativedelta(months=1)
+    entries = db.session.execute(text(
+        f"""
+        SELECT *
+        FROM income_expenses
+        WHERE date >= :start_date AND date < :end_date
+        """
+        ),
+        {
+            'start_date': start_date,
+            'end_date': end_date
+        }).all()
 
-    entries = IncomeExpenses.query.filter(
-        IncomeExpenses.date >= start_date,
-        IncomeExpenses.date < end_date
-    )
-    return jsonify(entries=entries,
+    return jsonify(entries=[r._asdict() for r in entries],
                    categories=TRANSACTION_CATEGORY,
-                   start_date=start_date.strftime("%Y-%m"),
-                   end_date=end_date.strftime("%Y-%m")
     )
