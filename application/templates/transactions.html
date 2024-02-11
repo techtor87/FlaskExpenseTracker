@@ -13,89 +13,170 @@
             defaultColDef: {
                 editable: true,
                 filter: true,
-                floatingFilter: true
+                floatingFilter: false
             },
             // Column Definitions: Defines & controls grid columns.
             columnDefs: [
-                { field: 'index', filter: false, editable: false },
-                { field: 'date', cellEditor: 'agDateStringCellEditor'},
-                { field: 'description', flex: 3},
-                { field: 'amount', flex: 1, valueFormatter: (params) => { return '$' + params.value.toLocaleString(); }},
-                { field: 'type', cellEditor: 'agSelectCellEditor', cellEditorParams: {
-                    values: ['credit', 'debit']
-                }},
-                { field: 'category', cellEditor: 'agSelectCellEditor', cellEditorParams: {
-                    values:  {{ categories | tojson }}
-                }},
-                { field: 'account', flex: 1.5},
-                { field: 'bank', flex: 2},
+                {
+                    field: 'index',
+                    filter: false,
+                    editable: false,
+                },
+                {
+                    field: 'date',
+                    cellEditor: 'agDateStringCellEditor',
+                    menuTabs: ['filterMenuTab'],
+                    filter: 'agSetColumnFilter',
+                    filterParams: {
+                        treeList: true,
+                        // values: ,
+                        // keyCreator: ,
+                        // valueFormatter: ,
+                        // comparator: ,
+                    },
+                },
+                {
+                    field: 'description',
+                    flex: 3,
+                    menuTabs: ['filterMenuTab'],
+                    filter: 'agSetColumnFilter',
+                    filterParams: {
+                        applyMIniFilterWhileTyping: true,
+                        // values: ,
+                        // keyCreator: ,
+                        // valueFormatter: ,
+                        // comparator: ,
+                    },
+                },
+                {
+                    field: 'amount',
+                    flex: 1,
+                    valueFormatter: (params) => { return '$' + params.value.toLocaleString(); },
+                    menuTabs: ['filterMenuTab'],
+                    filter: 'agSetColumnFilter',
+                    filterParams: {
+                        // values: ,
+                        // keyCreator: ,
+                        // valueFormatter: ,
+                        // comparator: ,
+                    },
+                },
+                {
+                    field: 'type',
+                    cellEditor: 'agSelectCellEditor',
+                    cellEditorParams: {
+                        values: ['credit', 'debit']
+                    },
+                    menuTabs: ['filterMenuTab'],
+                    filter: 'agSetColumnFilter',
+                    filterParams: {
+                        // values: ,
+                        // keyCreator: ,
+                        // valueFormatter: ,
+                        // comparator: ,
+                    },
+                },
+                {
+                    field: 'category',
+                    cellEditor: 'agSelectCellEditor',
+                    cellEditorParams: {
+                        values: getCategories()
+                    },
+                    menuTabs: ['filterMenuTab'],
+                    filter: 'agSetColumnFilter',
+                    filterParams: {
+                        applyMIniFilterWhileTyping: true,
+                        values: params => getCategoriesAsync(params),
+                        // keyCreator: ,
+                        // valueFormatter: ,
+                        // comparator: ,
+                    },
+                },
+                {
+                    field: 'account',
+                    flex: 1.5,
+                    menuTabs: ['filterMenuTab'],
+                    filter: 'agSetColumnFilter',
+                    filterParams: {
+                        applyMIniFilterWhileTyping: true,
+                        // values: ,
+                        // keyCreator: ,
+                        // valueFormatter: ,
+                        // comparator: ,
+                    },
+                },
+                {
+                    field: 'bank',
+                    flex: 2,
+                    menuTabs: ['filterMenuTab'],
+                    filter: 'agSetColumnFilter',
+                    filterParams: {
+                        applyMIniFilterWhileTyping: true,
+                        // values: ,
+                        // keyCreator: ,
+                        // valueFormatter: ,
+                        // comparator: ,
+                    },
+                },
             ],
             onRowValueChanged: onRowValueChanged,
+            debug: true,
+        };
+
+        function getCategoriesAsync(params) {
+            fetch('/categories', {
+                    method: 'GET',
+                })
+            .then(httpResponse => httpResponse.json())
+            .then(response => {
+                return params.success(response.categories);
+            })
+            .catch(error => {
+                console.error(error);
+            })
+        };
+
+        function getCategories(params) {
+            fetch('/categories', {
+                    method: 'GET',
+                })
+            .then(httpResponse => httpResponse.json())
+            .then(response => {
+                return response.categories;
+            })
+            .catch(error => {
+                console.error(error);
+            })
         };
 
         // setup the grid after the page has finished loading
         document.addEventListener('DOMContentLoaded', function () {
-        var gridDiv = document.querySelector('#table');
-        gridApi = agGrid.createGrid(gridDiv, gridOptions);
-
-        fetch('/data/' + document.getElementById('start_date').value + '/'+document.getElementById('end_date').value)
-            .then((response) => response.json())
-            .then(function (data) {
-            // adding row id to data
-            var idSequence = 0;
-            data['entries'].forEach(function (item) {
-                item.id = idSequence++;
-            });
-
-            // setup the fake server with entire dataset
-            var fakeServer = createFakeServer(data);
-
-            // create datasource with a reference to the fake server
-            var datasource = createServerSideDatasource(fakeServer);
-
-            // register the datasource with the grid
-            gridApi.setGridOption('serverSideDatasource', datasource);
-            });
+            var gridDiv = document.querySelector('#table');
+            gridApi = agGrid.createGrid(gridDiv, gridOptions);
+            gridApi.setGridOption('serverSideDatasource', ServerSideDatasource);
+            // gridApi.setGridOption('rowData', ServerSideDatasource)
         });
 
-        function createServerSideDatasource(server) {
-            return {
-                getRows: (params) => {
-                    console.log('[Datasource] - rows requestsed by grid: ', params.request);
+        const ServerSideDatasource = {
+            getRows(params) {
+                console.log(JSON.stringify(params.request, null, 1));
 
-                    var response = server.getData(params.request);
-
-                    setTimeout(() => {
-                        if (response.success) {
-                            params.success({
-                                rowData: response.rows,
-                                rowCount: response.lastRow,
-                            });
-                        } else {
-                            params.fail();
-                        }
-                    }, 500);
-                },
-            };
-        }
-
-        function createFakeServer(allData) {
-            return {
-                getData: (request) => {
-                // take a slice of the total rows for requested block
-                var rowsForBlock = allData['entries'].slice(request.startRow, request.endRow);
-
-                // here we are pretending we don't know the last row until we reach it!
-                var lastRow = getLastRowIndex(request, rowsForBlock);
-
-                return {
-                    success: true,
-                    rows: rowsForBlock,
-                    lastRow: lastRow,
-                };
-                },
-            };
+                fetch('/data/' + document.getElementById('start_date').value + '/'+document.getElementById('end_date').value, {
+                    method: 'POST',
+                    body: JSON.stringify(params.request),
+                    headers: { 'Content-Type': 'application/json; charset=utf-8'}
+                    })
+                .then(httpResponse => httpResponse.json())
+                .then(response => {
+                    params.success({rowData: response.rows, laskRow: response.lastRow});
+                })
+                .catch(error => {
+                    console.error(error);
+                    params.fail();
+                })
             }
+        };
+
 
         function getLastRowIndex(request, results) {
             if (!results) return undefined;
@@ -110,9 +191,6 @@
             console.log('onRowValueChanged: ('+data+')')
             $.getJSON("/update", {'new_data': JSON.stringify(data)});
         }
-
-        // const myGridElement = document.querySelector('#table');
-        // agGrid.createGrid(myGridElement, gridOptions);
 
         </script>
 
