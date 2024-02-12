@@ -1,10 +1,11 @@
 let gridApi;
 
 const gridOptions = {
-    rowModelType: 'serverSide',
     autoSizeStrategy: {type: 'fitCellContents'},
     pagination: true,
     editType: 'fullRow',
+    undoRedoCellEditing: true,
+    undoRedoCellEditingLimit: 40,
     defaultColDef: {
         editable: true,
         filter: true,
@@ -13,7 +14,7 @@ const gridOptions = {
     // Column Definitions: Defines & controls grid columns.
     columnDefs: [
         {
-            field: 'index',
+            field: 'id',
             filter: false,
             editable: false,
         },
@@ -36,7 +37,7 @@ const gridOptions = {
             menuTabs: ['filterMenuTab'],
             filter: 'agSetColumnFilter',
             filterParams: {
-                applyMIniFilterWhileTyping: true,
+                applyMiniFilterWhileTyping: true,
                 // values: ,
                 // keyCreator: ,
                 // valueFormatter: ,
@@ -73,15 +74,15 @@ const gridOptions = {
         },
         {
             field: 'category',
-            cellEditor: 'agSelectCellEditor',
+            cellEditor: 'agRichSelectCellEditor',
             cellEditorParams: {
                 values: getCategories()
             },
             menuTabs: ['filterMenuTab'],
             filter: 'agSetColumnFilter',
             filterParams: {
-                applyMIniFilterWhileTyping: true,
-                values: params => getCategoriesAsync(params),
+                applyMiniFilterWhileTyping: true,
+                // values: params => getCategoriesAsync(params),
                 // keyCreator: ,
                 // valueFormatter: ,
                 // comparator: ,
@@ -106,7 +107,7 @@ const gridOptions = {
             menuTabs: ['filterMenuTab'],
             filter: 'agSetColumnFilter',
             filterParams: {
-                applyMIniFilterWhileTyping: true,
+                applyMiniFilterWhileTyping: true,
                 // values: ,
                 // keyCreator: ,
                 // valueFormatter: ,
@@ -132,45 +133,32 @@ function getCategoriesAsync(params) {
 };
 
 function getCategories(params) {
-    fetch('/categories', {
+    return fetch('/categories', {
             method: 'GET',
         })
-    .then(httpResponse => httpResponse.json())
-    .then(response => {
-        return response.categories;
-    })
-    .catch(error => {
-        console.error(error);
-    })
-};
+        .then(httpResponse => httpResponse.json() )
+        .then(response => {
+            console.log(response.categories);
+            return response.categories;
+        })
+    };
 
 // setup the grid after the page has finished loading
 document.addEventListener('DOMContentLoaded', function () {
     var gridDiv = document.querySelector('#table');
     gridApi = agGrid.createGrid(gridDiv, gridOptions);
-    gridApi.setGridOption('serverSideDatasource', ServerSideDatasource);
-    // gridApi.setGridOption('rowData', ServerSideDatasource)
 });
 
-const ServerSideDatasource = {
-    getRows(params) {
-        console.log(JSON.stringify(params.request, null, 1));
-
-        fetch('/data/' + document.getElementById('start_date').value + '/'+document.getElementById('end_date').value, {
-            method: 'POST',
-            body: JSON.stringify(params.request),
-            headers: { 'Content-Type': 'application/json; charset=utf-8'}
+const getData = fetch('/data_client/' + document.getElementById('start_date').value + '/'+document.getElementById('end_date').value, {
+            method: 'GET',
             })
         .then(httpResponse => httpResponse.json())
         .then(response => {
-            params.success({rowData: response.rows, laskRow: response.lastRow});
+            gridApi.setGridOption('rowData', response.rows);
         })
         .catch(error => {
             console.error(error);
-            params.fail();
         })
-    }
-};
 
 
 function getLastRowIndex(request, results) {

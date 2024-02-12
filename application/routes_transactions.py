@@ -68,7 +68,25 @@ def update_row():
     db.session.commit()
     return jsonify()
 
-@bp.route('/data/<start_date>/<end_date>', methods=['POST'])
+@bp.route('/data_client/<start_date>/<end_date>', methods=['GET'])
+def get_table_data_client(start_date, end_date):
+    start_date = datetime.strptime(start_date, "%Y-%m")
+    end_date = datetime.strptime(end_date, "%Y-%m")
+
+    entries = db.session.execute(
+        text("""SELECT *
+                FROM income_expenses
+                WHERE date >= :start_date AND date < :end_date
+            """)
+        ,
+        {
+            'start_date': start_date,
+            'end_date': end_date
+        }).all()
+
+    return jsonify(rows=[r._asdict() for r in entries])
+
+@bp.route('/data/<start_date>/<end_date>', methods=['GET'])
 def get_table_data(start_date, end_date):
     start_date = datetime.strptime(start_date, "%Y-%m")
     end_date = datetime.strptime(end_date, "%Y-%m")
