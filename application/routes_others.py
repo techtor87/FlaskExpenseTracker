@@ -28,7 +28,7 @@ def add_expense():
         db.session.add(entry)
         db.session.commit()
         flash(f"{form.type.data} has been added to {form.type.data}s", "success")
-        return redirect(url_for("transactions_view"))
+        return redirect(url_for("bp_transactions.transactions_view"))
     return render_template("add.html", title="Add Transactions", form=form)
 
 
@@ -80,4 +80,4 @@ def delete(entry_id):
     db.session.delete(entry)
     db.session.commit()
     flash("Entry deleted", "success")
-    return redirect(url_for("transactions_view"))
+    return redirect(url_for("bp_transactions.transactions_view"))

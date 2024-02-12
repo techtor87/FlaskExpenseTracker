@@ -1,4 +1,4 @@
 *.pyc
 .env
 venv/*
-instance/*.db
+instance/transactions.db

@@ -103,6 +103,7 @@ from sqlalchemy import func, select, update, delete, text
 from application.models import Category
 
 TRANSACTION_CATEGORY = [
+    ("EXCLUDE", "EXCLUDE"),
     # Income Groups
     ("Paycheck", 'Income'),
     ("Interest Income", 'Income'),

@@ -1,3 +1,10 @@
+function toolTipRenderer({datum, xKey, yKey}) {
+    return {
+        title: datum[xKey],
+        content: '$' + datum[yKey].toFixed(2),
+    }
+};
+
 let income_vs_expense_options = {
     // Container: HTML Element to hold the chart
     container: document.getElementById('income_vs_expense_canvas'),
@@ -8,22 +15,34 @@ let income_vs_expense_options = {
     series: [
         {
             type: 'area',
-            xkey: 'date',
-            ykey: 'income',
+            xKey: 'date',
+            yKey: 'income',
             yName: 'Income',
+            tooltip: {
+                range: "nearest",
+                renderer: toolTipRenderer
+            },
         },
         {
             type: 'area',
-            xkey: 'date',
-            ykey: 'expense',
+            xKey: 'date',
+            yKey: 'expense',
             yName: 'Expense',
+            tooltip: {
+                range: "nearest",
+                renderer: toolTipRenderer
+            },
         },
         {
             type: 'line',
-            xkey: 'date',
-            ykey: 'total',
+            xKey: 'date',
+            yKey: 'total',
             yName: 'Total',
-        }
+            tooltip: {
+                range: "nearest",
+                renderer: toolTipRenderer
+            },
+        },
     ],
     axes: [
         {
@@ -35,7 +54,11 @@ let income_vs_expense_options = {
             position: "left",
 
         }
-    ]
+    ],
+    navigator: {
+        enabled: true,
+        height: 15,
+    },
 };
 
 let expense_vs_category_options = {
@@ -57,7 +80,7 @@ let expense_vs_category_options = {
             // data: JSON.parse( income_category_data ),
             type: 'pie',
             angleKey: 'total',
-            sectorLabelKey: 'category',
+            sectorLabelKey: 'category_type',
             outerRadiusRatio: 0.6,
             innerRadiusRatio: 0.4,
             fillOpacity: 0.5,
@@ -93,9 +116,44 @@ let overtime_expenditure_options = {
     ],
 };
 
+let net_worth_options = {
+    // Container: HTML Element to hold the chart
+    container: document.getElementById('net_worth_canvas'),
+    title: {text: 'Account Balances over Time'},
+    // Data: Data to be displayed in the chart
+    theme: {
+        overrides: {
+            line: {
+                series: {
+                    lineDash: [12, 3],
+                    marker: {
+                        enabled: false,
+                    },
+                },
+            },
+        },
+    },
+    // Series: Defines which chart type and data to use
+    series: [
+        {
+            type: 'line',
+            xKey: 'date',
+            yKey: 'checking',
+            yName: 'Ally - Checking'
+        },
+        {
+            type: 'line',
+            xKey: 'date',
+            yKey: 'total',
+            yName: 'Net Worth'
+        },
+    ],
+};
+
 const income_expense_chart = agCharts.AgCharts.create(income_vs_expense_options);
 const expense_category_chart = agCharts.AgCharts.create(expense_vs_category_options);
 const time_expense_chart = agCharts.AgCharts.create(overtime_expenditure_options);
+const net_worth_chart = agCharts.AgCharts.create(net_worth_options);
 
 // setup the grid after the page has finished loading
 document.addEventListener('DOMContentLoaded', function () {
@@ -126,5 +184,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             overtime_expenditure_options.data = res.over_time_expenditure;
             agCharts.AgCharts.update(time_expense_chart, overtime_expenditure_options)
+
+            net_worth_options.data = res.net_worth_data
+            agCharts.AgCharts.update(net_worth_chart, net_worth_options)
     })
 });
