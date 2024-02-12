@@ -6,8 +6,8 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for,
 from sqlalchemy import func, select, update, delete, text
 
 from application import db
-from application.form import TRANSACTION_CATEGORY, BulkDataForm, UserDataForm
-from application.models import IncomeExpenses
+from application.form import BulkDataForm, UserDataForm
+from application.models import IncomeExpenses, Category
 
 bp = Blueprint('bp_transactions', __name__)
 
@@ -28,25 +28,15 @@ def transactions_view():
         IncomeExpenses.date < end_date
     )
     return render_template(
-        "transactions.html", entries=entries, categories=TRANSACTION_CATEGORY, start_date=start_date.strftime("%Y-%m"), end_date=end_date.strftime("%Y-%m")
+        "transactions.html", entries=entries, start_date=start_date.strftime("%Y-%m"), end_date=end_date.strftime("%Y-%m")
     )
 
 @bp.route('/categories')
 def get_categories():
-    # db.session.execute(
-    #     update(IncomeExpenses)
-    #     .where(IncomeExpenses.id==new_data['index'])
-    #     .values({
-    #         "date": datetime.strptime(new_data['date'], "%Y-%m-%d"),
-    #         "description":new_data['description'],
-    #         "amount":new_data['amount'],
-    #         "type":new_data['type'],
-    #         "category":new_data['category'],
-    #         "account":new_data['account'],
-    #         "bank":new_data['bank']
-    #     })
-    # )
-    return jsonify(categories=TRANSACTION_CATEGORY)
+    category_list = [(r._asdict())['name'] for r in db.session.execute(
+        select(Category.name)
+        ).all()]
+    return jsonify(categories=category_list)
 
 
 @bp.route('/update')
@@ -54,7 +44,7 @@ def update_row():
     new_data = json.loads(request.args.get('new_data'))
     db.session.execute(
         update(IncomeExpenses)
-        .where(IncomeExpenses.id==new_data['index'])
+        .where(IncomeExpenses.id==new_data['id'])
         .values({
             "date": datetime.strptime(new_data['date'], "%Y-%m-%d"),
             "description":new_data['description'],

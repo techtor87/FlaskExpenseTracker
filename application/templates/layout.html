@@ -36,7 +36,7 @@
     {%- endif -%}
 </head>
 
-<body {% if start_date is defined -%} onload="update_page_data()" {%- endif %}>
+<body >
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12 p-0">
@@ -83,11 +83,6 @@
             </div>
         </div>
     </div>
-    <script>
-        function update_page_data(res) {
-            return;
-        }
-    </script>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
         crossorigin="anonymous"></script>

@@ -17,6 +17,12 @@ app.config['DEBUG'] = True
 
 db = SQLAlchemy(app)
 
+# Create/Update driver with all tables
+with app.app_context():
+    db.create_all()
+
+
+
 # Fill in your Plaid API keys - https://dashboard.plaid.com/account/keys
 PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID')
 PLAID_SECRET = os.getenv('PLAID_SECRET')
@@ -90,3 +96,88 @@ from application.routes_transactions import bp as bp_transaction
 app.register_blueprint(bp_other)
 app.register_blueprint(bp_dashboard)
 app.register_blueprint(bp_transaction)
+
+
+from sqlalchemy import func, select, update, delete, text
+from application.models import Category
+
+TRANSACTION_CATEGORY = [
+    # Income Groups
+    ("Paycheck", 'Income'),
+    ("Interest Income", 'Income'),
+    ("Other Income", 'Income'),
+    # Fixed Needs Groups
+    ("Mortage & Rent", 'Fixed Needs'),
+    ("Natural Gas", 'Fixed Needs'),
+    ("Water", 'Fixed Needs'),
+    ("Internet", 'Fixed Needs'),
+    ("Phone", 'Fixed Needs'),
+    ("Trash", 'Fixed Needs'),
+    ("Life Insurance", 'Fixed Needs'),
+    ("Transfer to Tithe", 'Fixed Needs'),
+    ("Auto Insurance", 'Fixed Needs'),
+    # Variable Needs Groups
+    ("Groceries", 'Variable Needs'),
+    ("Gas & Fuel", 'Variable Needs'),
+    ("Electric", 'Variable Needs'),
+    ("Tuition & Daycare", 'Variable Needs'),
+    ("Nec Expense", 'Variable Needs'),
+    ("Medical", 'Variable Needs'),
+    ("Tax", 'Variable Needs'),
+    ("Home Exp", 'Variable Needs'),
+    ("Auto & Transport", 'Variable Needs'),
+    ("Work Expense", 'Variable Needs'),
+    # Variable Wants Groups
+    ("Netflix", 'Variable Wants'),
+    ("Eat Out - Both", 'Variable Wants'),
+    ("Eat Out - Greg", 'Variable Wants'),
+    ("Eat Out - Emily", 'Variable Wants'),
+    ("Cash & ATM", 'Variable Wants'),
+    ("Other", 'Variable Wants'),
+    ("Exercise", 'Variable Wants'),
+    ("Gift", 'Variable Wants'),
+    ("Shopping", 'Variable Wants'),
+    ("Home Improvement", 'Variable Wants'),
+    ("Television", 'Variable Wants'),
+    ("Vacation", 'Variable Wants'),
+    ("Clothing", 'Variable Wants'),
+    ("Entertainment", 'Variable Wants'),
+    ("Hobbies", 'Variable Wants'),
+    ("Cleaning Service", 'Variable Wants'),
+    ("Business Expense", 'Variable Wants'),
+    # Savings Groups
+    ("Retirement IRA - Greg", 'Savings'),
+    ("529 College Savings", 'Savings'),
+    ("Savings", 'Savings'),
+    ("Emergency", 'Savings'),
+    ("Extra Mortgage & Rent", 'Savings'),
+    # Rental Groups
+    ("Kentwood Income", 'Business'),
+    ("Kentwood Mortgage", 'Business'),
+    ("Kentwood Expense", 'Business'),
+    ("29th Income", 'Business'),
+    ("29th Mortgage", 'Business'),
+    ("29th Expense", 'Business'),
+    ("Cranberry Income", 'Business'),
+    ("Cranberry Mortgage", 'Business'),
+    ("Cranberry Expense", 'Business'),
+    ("Chelsea Income", 'Business'),
+    ("Chelsea Mortgage", 'Business'),
+    ("Chelsea Expense", 'Business'),
+    ("Geist Income", 'Business'),
+    ("Geist Mortgage", 'Business'),
+    ("Geist Expense", 'Business'),
+    ("Maple Income", 'Business'),
+    ("Maple Mortgage", 'Business'),
+    ("Maple Expense", 'Business'),
+]
+
+def fill_category_table():
+    if len(db.session.execute(select(Category)).all()) == 0:
+        for category, type in TRANSACTION_CATEGORY:
+            db.session.add(Category(name=category, type=type))
+
+        db.session.commit()
+
+with app.app_context():
+    fill_category_table()   # checks if cateogry table is filled and fills it if it's empty

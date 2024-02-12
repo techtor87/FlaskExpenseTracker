@@ -1,5 +1,4 @@
-
-const income_vs_expense_options = {
+let income_vs_expense_options = {
     // Container: HTML Element to hold the chart
     container: document.getElementById('income_vs_expense_canvas'),
     title: {text: 'Income vs Expense'},
@@ -39,7 +38,7 @@ const income_vs_expense_options = {
     ]
 };
 
-const expense_vs_category_options = {
+let expense_vs_category_options = {
     // Container: HTML Element to hold the chart
     container: document.getElementById('expense_vs_category_canvas'),
     title: {text: 'Expenses by Category'},
@@ -66,7 +65,7 @@ const expense_vs_category_options = {
     ],
 };
 
-const overtime_expenditure_options = {
+let overtime_expenditure_options = {
     // Container: HTML Element to hold the chart
     container: document.getElementById('overtime_expenditure_canvas'),
     title: {text: 'Expense over Time'},
@@ -98,7 +97,8 @@ const income_expense_chart = agCharts.AgCharts.create(income_vs_expense_options)
 const expense_category_chart = agCharts.AgCharts.create(expense_vs_category_options);
 const time_expense_chart = agCharts.AgCharts.create(overtime_expenditure_options);
 
-function update_page_data(res) {
+// setup the grid after the page has finished loading
+document.addEventListener('DOMContentLoaded', function () {
     console.log('page loaded. getting data...');
 
     let start_date = document.getElementById('start_date').value
@@ -118,8 +118,13 @@ function update_page_data(res) {
         if (res)
             console.log("data received.");
 
-            income_expense_chart.data = res.income_expense_data;
-            expense_category_chart.data = res.income_category_data;
-            time_expense_chart.data = res.over_time_expenditure;
+            income_vs_expense_options.data = res.income_expense_data;
+            agCharts.AgCharts.update(income_expense_chart, income_vs_expense_options)
+
+            expense_vs_category_options.data = res.income_category_data;
+            agCharts.AgCharts.update(expense_category_chart, expense_vs_category_options)
+
+            overtime_expenditure_options.data = res.over_time_expenditure;
+            agCharts.AgCharts.update(time_expense_chart, overtime_expenditure_options)
     })
-}
+});

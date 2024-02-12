@@ -21,3 +21,13 @@ class Account(db.Model):
     account = db.Column(db.String(30), nullable=False)
     value = db.Column(db.DECIMAL(10, 2), nullable=False)
     retirement = db.Column(db.Boolean, default=False)
+
+
+class Category(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(30), nullable=False)
+    type = db.Column(db.String(30), nullable=False)
+
+
+class Rules(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
