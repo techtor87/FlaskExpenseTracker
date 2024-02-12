@@ -9,6 +9,7 @@ from plaid.model.products import Products
 from plaid.api import plaid_api
 
 
+
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = "JLKJJJO3IURYoiouolnojojouuoo=5y9y9youjuy952oohhbafdnoglhoho"
@@ -17,10 +18,10 @@ app.config['DEBUG'] = True
 
 db = SQLAlchemy(app)
 
-# Create/Update driver with all tables
+# IMPORT MODELS AFTER CREATING SQLALCHEMY.DB BUT BEFORE CREATING THE DATABASE
+from application.models import Category, IncomeExpenses, Account, Rules
 with app.app_context():
     db.create_all()
-
 
 
 # Fill in your Plaid API keys - https://dashboard.plaid.com/account/keys

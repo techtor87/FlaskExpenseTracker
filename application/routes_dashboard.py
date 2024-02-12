@@ -29,11 +29,11 @@ def dashboard():
                     FROM
                         (SELECT strftime('%m-%Y', date) AS agg_date, SUM(amount) AS income
                         FROM income_expenses
-                        WHERE category != 'Transfer' AND type == 'credit'
+                        WHERE category_id != 'Transfer' AND type == 'credit'
                         GROUP BY agg_date) AS credit,
                         (SELECT strftime('%m-%Y', date) AS agg_date, SUM(amount) AS expense
                         FROM income_expenses
-                        WHERE category != 'Transfer' AND type == 'debit'
+                        WHERE category_id != 'Transfer' AND type == 'debit'
                         GROUP BY agg_date) AS debit
                     WHERE credit.agg_date == debit.agg_date
                 """
@@ -42,21 +42,21 @@ def dashboard():
 
 
     category_comparison = (
-        db.session.execute(select(IncomeExpenses.category, func.sum(IncomeExpenses.amount))
+        db.session.execute(select(IncomeExpenses.category_id, func.sum(IncomeExpenses.amount))
         .filter(
-            IncomeExpenses.category != "Transfer",
+            IncomeExpenses.category_id != "Transfer",
             IncomeExpenses.type == "debit",
             IncomeExpenses.date >= start_date,
             IncomeExpenses.date < end_date,
         )
-        .group_by(IncomeExpenses.category))
+        .group_by(IncomeExpenses.category_id))
         .all()
     )
 
     dates = (
         db.session.execute(select(IncomeExpenses.date, func.sum(IncomeExpenses.amount))
         .filter(
-            IncomeExpenses.category != "Transfer",
+            IncomeExpenses.category_id != "Transfer",
             IncomeExpenses.type == "debit",
             IncomeExpenses.date >= start_date,
             IncomeExpenses.date < end_date,
@@ -90,11 +90,11 @@ def send_dashboard_data():
                     FROM
                         (SELECT strftime('%m-%Y', date) AS agg_date, SUM(amount) AS income
                         FROM income_expenses
-                        WHERE category != 'Transfer' AND type == 'credit'
+                        WHERE category_id != 'Transfer' AND type == 'credit'
                         GROUP BY agg_date) AS credit,
                         (SELECT strftime('%m-%Y', date) AS agg_date, SUM(amount) AS expense
                         FROM income_expenses
-                        WHERE category != 'Transfer' AND type == 'debit'
+                        WHERE category_id != 'Transfer' AND type == 'debit'
                         GROUP BY agg_date) AS debit
                     WHERE credit.agg_date == debit.agg_date
                 """
@@ -105,7 +105,7 @@ def send_dashboard_data():
     category_comparison = (
         db.session.execute(select(IncomeExpenses.category, func.sum(IncomeExpenses.amount))
         .filter(
-            IncomeExpenses.category != "Transfer",
+            IncomeExpenses.category_id != "Transfer",
             IncomeExpenses.type == "debit",
             IncomeExpenses.date >= start_date,
             IncomeExpenses.date < end_date,
@@ -117,7 +117,7 @@ def send_dashboard_data():
     dates = (
         db.session.execute(select(IncomeExpenses.date, func.sum(IncomeExpenses.amount))
         .filter(
-            IncomeExpenses.category != "Transfer",
+            IncomeExpenses.category_id != "Transfer",
             IncomeExpenses.type == "debit",
             IncomeExpenses.date >= start_date,
             IncomeExpenses.date < end_date,

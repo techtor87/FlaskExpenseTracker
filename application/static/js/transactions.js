@@ -73,7 +73,8 @@ const gridOptions = {
             },
         },
         {
-            field: 'category',
+            field: 'category_id',
+            headerName: 'Category',
             cellEditor: 'agRichSelectCellEditor',
             cellEditorParams: {
                 values: getCategories()
@@ -86,6 +87,12 @@ const gridOptions = {
                 // keyCreator: ,
                 // valueFormatter: ,
                 // comparator: ,
+            },
+            cellStyle: params => {
+                if (catagory_array.indexOf(params.value) === -1) {
+                    return {backgroundColor: 'red'};
+                }
+                return {backgroundColor: 'inherit'};
             },
         },
         {
@@ -138,7 +145,7 @@ function getCategories(params) {
         })
         .then(httpResponse => httpResponse.json() )
         .then(response => {
-            console.log(response.categories);
+            catagory_array = response.categories;
             return response.categories;
         })
     };

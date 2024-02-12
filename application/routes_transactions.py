@@ -50,7 +50,7 @@ def update_row():
             "description":new_data['description'],
             "amount":new_data['amount'],
             "type":new_data['type'],
-            "category":new_data['category'],
+            "category_id":new_data['category_id'],
             "account":new_data['account'],
             "bank":new_data['bank']
         })

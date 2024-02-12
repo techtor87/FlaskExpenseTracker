@@ -6,8 +6,8 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for,
 from sqlalchemy import func, select, text
 
 from application import db
-from application.form import TRANSACTION_CATEGORY, BulkDataForm, UserDataForm
-from application.models import IncomeExpenses
+from application.form import BulkDataForm, UserDataForm
+from application.models import IncomeExpenses, Category
 
 bp = Blueprint('bp', __name__)
 
@@ -20,7 +20,7 @@ def add_expense():
             description=form.description.data,
             amount=form.amount.data,
             type=form.type.data,
-            category=form.category.data,
+            category_id=form.category.data,
             account=form.account.data,
             bank=form.bank.data,
         )
@@ -45,31 +45,32 @@ def import_expense():
                         description=data[1],
                         amount=data[3],
                         type=data[4],
-                        category=data[5],
+                        category_id=data[5],
                         account=data[6],
                         bank=data[6],
                     )
                     db.session.add(entry)
-        elif '"Date",' in form.bulk_data.data:
+        elif 'Date,' in form.bulk_data.data or '"Date",' in form.bulk_data.data:
             for line in form.bulk_data.data.splitlines():
                 data = line.split(",")
-                if data != "" and '"Date"' not in data[0]:
+                if data != "" and 'Date' not in data[0]:
                     data = [item.replace('"', '') for item in data]
                     entry = IncomeExpenses(
                         date=datetime.strptime(data[0], "%m/%d/%Y").date(),
                         description=data[1],
                         amount=data[3],
                         type=data[4],
-                        category=data[5],
+                        category_id=data[5],
                         account=data[6],
                         bank=data[6],
                     )
+                    db.session.add(entry)
 
-        db.session.commit()
         flash(
-            f"{len(form.bulk_data.data.splitlines())} entries has been added", "success"
+            f"{len(db.session.new)} entries has been added", "success"
         )
-        return redirect(url_for("transactions_view"))
+        db.session.commit()
+        return redirect(url_for("bp_transactions.transactions_view"))
     return render_template("import.html", title="Import Transactions", form=form)
 
 
