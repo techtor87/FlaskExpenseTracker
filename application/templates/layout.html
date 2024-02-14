@@ -57,8 +57,9 @@
                         </button>
                         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                             <div class="navbar-nav ml-auto mr-3">
-                                <a class="nav-item nav-link" href="{{ url_for('bp_dashboard.dashboard') }}">Net Worth</a>
+                                <a class="nav-item nav-link" href="{{ url_for('bp.balances') }}">Net Worth</a>
                                 <a class="nav-item nav-link" href="{{ url_for('bp.add_expense') }}">Add</a>
+                                <a class="nav-item nav-link" href="{{ url_for('bp_categories.categories') }}">Categories</a>
                                 <a class="nav-item nav-link" href="{{ url_for('bp.import_expense') }}">Import</a>
                                 <a class="nav-item nav-link" href="{{ url_for('bp_transactions.transactions_view') }}">Transactions</a>
                             </div>

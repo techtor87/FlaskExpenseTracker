@@ -127,7 +127,7 @@ const gridOptions = {
 };
 
 function getCategoriesAsync(params) {
-    fetch('/categories', {
+    fetch('/api/categories', {
             method: 'GET',
         })
     .then(httpResponse => httpResponse.json())
@@ -140,7 +140,7 @@ function getCategoriesAsync(params) {
 };
 
 function getCategories(params) {
-    return fetch('/categories', {
+    return fetch('/api/categories', {
             method: 'GET',
         })
         .then(httpResponse => httpResponse.json() )
@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function () {
     gridApi = agGrid.createGrid(gridDiv, gridOptions);
 });
 
-const getData = fetch('/data_client/' + document.getElementById('start_date').value + '/'+document.getElementById('end_date').value, {
+const getData = fetch('/api/data_client/' + document.getElementById('start_date').value + '/'+document.getElementById('end_date').value, {
             method: 'GET',
             })
         .then(httpResponse => httpResponse.json())
@@ -179,5 +179,5 @@ function getLastRowIndex(request, results) {
 function onRowValueChanged(event) {
     var data = event.data;
     console.log('onRowValueChanged: ('+data+')')
-    $.getJSON("/update", {'new_data': JSON.stringify(data)});
+    $.getJSON("/api/update", {'new_data': JSON.stringify(data)});
 }

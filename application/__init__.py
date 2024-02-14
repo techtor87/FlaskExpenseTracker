@@ -9,6 +9,7 @@ from plaid.model.products import Products
 from plaid.api import plaid_api
 
 
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -94,9 +95,13 @@ item_id = None
 from application.routes_others import bp as bp_other
 from application.routes_dashboard import bp as bp_dashboard
 from application.routes_transactions import bp as bp_transaction
+from application.routes_plaid import bp as bp_plaid
+from application.routes_category import bp as bp_category
 app.register_blueprint(bp_other)
 app.register_blueprint(bp_dashboard)
 app.register_blueprint(bp_transaction)
+app.register_blueprint(bp_plaid)
+app.register_blueprint(bp_category)
 
 
 from sqlalchemy import func, select, update, delete, text

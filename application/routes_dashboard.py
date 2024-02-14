@@ -114,7 +114,22 @@ def send_dashboard_data():
             IncomeExpenses.date >= start_date,
             IncomeExpenses.date < end_date,
         )
-        .group_by(IncomeExpenses.category_id))
+        .group_by(IncomeExpenses.category_id)
+        .order_by(Category.type))
+        .all()
+    )
+    category_type_comparison = (
+        db.session.execute(select(Category.type, func.sum(IncomeExpenses.amount))
+        .join(Category)
+        .filter(
+            IncomeExpenses.category_id != "Transfer",
+            IncomeExpenses.category_id != "EXCLUDE",
+            IncomeExpenses.type == "debit",
+            IncomeExpenses.date >= start_date,
+            IncomeExpenses.date < end_date,
+        )
+        .group_by(Category.type)
+        .order_by(Category.type))
         .all()
     )
 
@@ -131,11 +146,13 @@ def send_dashboard_data():
         .all()
     )
 
-    income_category_data = [{'category': row[0], 'category_type': row[1], 'total': float(row[2])} for row in category_comparison]
+    expense_category_data = {'category': [{'category': row[0], 'category_type': row[1], 'total': float(row[2])} for row in category_comparison],
+        'category_type': [{'type': row[0], 'total': float(row[1])} for row in category_type_comparison],
+    }
     income_expense_data = [{'date': row[0], 'income': float(row[1]), 'expense': float(row[2]*-1), 'total': float(row[1])-float(row[2])} for row in income_vs_expense]
     over_time_expenditure = [{'date': row[0].strftime("%m-%d-%y"), 'total': float(row[1])} for row in dates]
 
-    return make_response(jsonify(income_category_data=income_category_data, income_expense_data=income_expense_data, over_time_expenditure=over_time_expenditure), 200) # HTTP_200_OK
+    return make_response(jsonify(expense_category_data=expense_category_data, income_expense_data=income_expense_data, over_time_expenditure=over_time_expenditure), 200) # HTTP_200_OK
 
 
 def check_content_type(content_type):

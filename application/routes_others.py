@@ -29,7 +29,7 @@ def add_expense():
         db.session.commit()
         flash(f"{form.type.data} has been added to {form.type.data}s", "success")
         return redirect(url_for("bp_transactions.transactions_view"))
-    return render_template("add.html", title="Add Transactions", form=form)
+    return render_template("add_transaction.html", title="Add Transactions", form=form)
 
 
 @bp.route("/import", methods=["POST", "GET"])
@@ -81,3 +81,7 @@ def delete(entry_id):
     db.session.commit()
     flash("Entry deleted", "success")
     return redirect(url_for("bp_transactions.transactions_view"))
+
+@bp.route('/balances')
+def balances():
+    return render_template('balances.html')

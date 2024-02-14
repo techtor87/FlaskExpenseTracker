@@ -31,7 +31,7 @@ def transactions_view():
         "transactions.html", entries=entries, start_date=start_date.strftime("%Y-%m"), end_date=end_date.strftime("%Y-%m")
     )
 
-@bp.route('/categories')
+@bp.route('/api/categories')
 def get_categories():
     category_list = [(r._asdict())['name'] for r in db.session.execute(
         select(Category.name)
@@ -39,7 +39,7 @@ def get_categories():
     return jsonify(categories=category_list)
 
 
-@bp.route('/update')
+@bp.route('/api/update')
 def update_row():
     new_data = json.loads(request.args.get('new_data'))
     db.session.execute(
@@ -58,7 +58,7 @@ def update_row():
     db.session.commit()
     return jsonify()
 
-@bp.route('/data_client/<start_date>/<end_date>', methods=['GET'])
+@bp.route('/api/data_client/<start_date>/<end_date>', methods=['GET'])
 def get_table_data_client(start_date, end_date):
     start_date = datetime.strptime(start_date, "%Y-%m")
     end_date = datetime.strptime(end_date, "%Y-%m")
@@ -76,7 +76,7 @@ def get_table_data_client(start_date, end_date):
 
     return jsonify(rows=[r._asdict() for r in entries])
 
-@bp.route('/data/<start_date>/<end_date>', methods=['GET'])
+@bp.route('/api/data/<start_date>/<end_date>', methods=['GET'])
 def get_table_data(start_date, end_date):
     start_date = datetime.strptime(start_date, "%Y-%m")
     end_date = datetime.strptime(end_date, "%Y-%m")
