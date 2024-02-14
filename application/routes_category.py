@@ -27,22 +27,23 @@ def get_category_data():
 
 @bp.route('/category/update')
 def update_row():
+    colId = request.args.get('colId')
     old_value = request.args.get('old_value')
     new_data = json.loads(request.args.get('new_data'))
 
     if old_value != None:
         db.session.execute(
             update(Category)
-            .where(Category.name==old_value)
+            .where(Category.name==(old_value if colId == 'name' else new_data['name']))
             .values({
                 Category.name: new_data['name'],
-                Category.type:new_data['type'],
+                Category.type: new_data['type'],
             })
         )
     else:
         db.session.add(Category(name=new_data.get('name', '[empty]'), type=new_data.get('type', '[empty]')))
     db.session.commit()
-    return jsonify()
+    return get_category_data()
 
 @bp.route('/category/delete')
 def delete_row():
@@ -51,4 +52,4 @@ def delete_row():
         entry = Category.query.get_or_404(row['name'])
         db.session.delete(entry)
     db.session.commit()
-    return jsonify()
+    return get_category_data()

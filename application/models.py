@@ -7,6 +7,9 @@ class Category(db.Model):
     name = db.Column(db.String(30), primary_key=True)
     type = db.Column(db.String(30), nullable=False)
 
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 
 class IncomeExpenses(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -19,6 +22,9 @@ class IncomeExpenses(db.Model):
     account = db.Column(db.String(30), nullable=False)
     bank = db.Column(db.String(30), nullable=False)
 
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 
 class Account(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -30,6 +36,11 @@ class Account(db.Model):
     type = db.Column(db.String(30), nullable=True)
     category = db.Column(db.String(30), nullable=False)
 
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 class Rules(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}

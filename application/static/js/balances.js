@@ -9,33 +9,67 @@ const gridOptions = {
     defaultColDef: {
         flex:1,
         editable: true,
-        filter: true,
+        filter: 'agSetColumnFilter',
+        menuTabs: ['filterMenuTab'],
         floatingFilter: false
     },
     // Column Definitions: Defines & controls grid columns.
     columnDefs: [
         {
-            field: 'name',
-            minWidth: 200,
-            menuTabs: ['filterMenuTab'],
-            filter: 'agSetColumnFilter',
+            field: 'id',
+            hide: true,
             filterParams: {
                 applyMiniFilterWhileTyping: true,
             },
         },
         {
+            field: 'date',
+            cellEditor: 'agDateStringCellEditor',
+            filterParams: {
+                treeList: true,
+            },
+        },
+        {
+            field: 'bank',
             rowGroup: true,
+            filterParams: {
+                applyMiniFilterWhileTyping: true,
+            },
+        },
+        {
+            field: 'account',
+            rowGroup: true,
+        },
+        {
+            field: 'value',
+            valueFormatter: (params) => { return '$' + params.value.toLocaleString(); },
+        },
+        {
+            field: 'retirement',
+        },
+        {
             field: 'type',
-            minWidth: 200,
-            menuTabs: ['filterMenuTab'],
-            filter: 'agSetColumnFilter',
+            cellEditor: 'agRichSelectCellEditor',
+            cellEditorParams: {
+                values: ['Checking', 'Savings', 'CD', 'Stock/Brokerage', 'Real Estate']
+            },
+            filterParams: {
+                applyMiniFilterWhileTyping: true,
+            },
+
+        },
+        {
+            field: 'category',
+            cellEditor: 'agRichSelectCellEditor',
+            cellEditorParams: {
+                values: ['Checking', 'Savings', 'CD', 'Stock/Brokerage', 'Real Estate']
+            },
             filterParams: {
                 applyMiniFilterWhileTyping: true,
             },
         },
     ],
     autoGroupColumnDef: {
-        headerName: 'Category Type',
         field: '',
         cellRenderer: 'agGroupCellRenderer',
     },
@@ -53,12 +87,12 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function updateData() {
-    return fetch('/category/data', {
+    return fetch('/account/data', {
             method: 'GET',
             })
         .then(httpResponse => httpResponse.json())
         .then(response => {
-            gridApi.setGridOption('rowData', response.category_list);
+            gridApi.setGridOption('rowData', response.accounts_list);
         })
         .catch(error => {
             console.error(error);
@@ -68,7 +102,10 @@ function updateData() {
 function cellValueChanged(event) {
     var data = event.data;
     console.log('onRowValueChanged: ('+data+')')
-    $.getJSON("/category/update", {'colId': event.column.colId, 'old_value': event.oldValue, 'new_data': JSON.stringify(data)});
+    $.getJSON("/account/update", {'colId': event.column.colId, 'old_value': event.oldValue, 'new_data': JSON.stringify(data)},
+    function( response ) {
+        gridApi.setGridOption('rowData', response.accounts_list);
+    });
     updateData();
 }
 
@@ -80,6 +117,6 @@ function addRow() {
 function deleteRow() {
     var data = gridApi.getSelectedRows();
     console.log('deleteRow: ('+data+')')
-    $.getJSON("/category/delete", {'delete_data': JSON.stringify(data)});
+    $.getJSON("/account/delete", {'delete_data': JSON.stringify(data)});
     updateData();
 }
