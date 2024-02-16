@@ -7,7 +7,7 @@ from sqlalchemy import func, select, update, delete, text, insert
 
 from application import db
 from application.form import BulkDataForm, UserDataForm
-from application.models import IncomeExpenses, Category
+from application.models import Transactions, Category
 
 bp = Blueprint('bp_categories', __name__)
 

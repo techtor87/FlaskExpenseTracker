@@ -7,7 +7,7 @@ from sqlalchemy import func, select, text
 
 from application import db
 from application.form import BulkDataForm, UserDataForm
-from application.models import IncomeExpenses, Category
+from application.models import Transactions, Category
 
 bp = Blueprint('bp', __name__)
 
@@ -15,7 +15,7 @@ bp = Blueprint('bp', __name__)
 def add_expense():
     form = UserDataForm()
     if form.validate_on_submit():
-        entry = IncomeExpenses(
+        entry = Transactions(
             date=form.date.data,
             description=form.description.data,
             amount=form.amount.data,
@@ -40,7 +40,7 @@ def import_expense():
             for line in form.bulk_data.data.splitlines():
                 data = line.split("\t")
                 if data != "" and "Date" not in data[0]:
-                    entry = IncomeExpenses(
+                    entry = Transactions(
                         date=datetime.strptime(data[0], "%m/%d/%Y").date(),
                         description=data[1],
                         amount=data[3],
@@ -55,7 +55,7 @@ def import_expense():
                 data = line.split(",")
                 if data != "" and 'Date' not in data[0]:
                     data = [item.replace('"', '') for item in data]
-                    entry = IncomeExpenses(
+                    entry = Transactions(
                         date=datetime.strptime(data[0], "%m/%d/%Y").date(),
                         description=data[1],
                         amount=data[3],
@@ -76,7 +76,7 @@ def import_expense():
 
 @bp.route("/delete-post/<int:entry_id>")
 def delete(entry_id):
-    entry = IncomeExpenses.query.get_or_404(int(entry_id))
+    entry = Transactions.query.get_or_404(int(entry_id))
     db.session.delete(entry)
     db.session.commit()
     flash("Entry deleted", "success")

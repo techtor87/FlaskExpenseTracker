@@ -8,19 +8,19 @@ from sqlalchemy import func, select, update, delete, text, insert
 from application import db
 from application.models import Account
 
-bp = Blueprint('bp_balances', __name__)
+bp = Blueprint('bp_balances', __name__, url_prefix='/account')
 
 @bp.route('/balances')
 def categories():
     return render_template('balances.html')
 
-@bp.route('/account/data')
+@bp.route('/data')
 def get_account_data():
     account_data = Account.query.all()
     accounts_list = [row.as_dict() for row in account_data]
     return jsonify(accounts_list=accounts_list)
 
-@bp.route('/account/update')
+@bp.route('/update')
 def update_row():
     new_data = json.loads(request.args.get('new_data'))
 
@@ -41,7 +41,7 @@ def update_row():
     return get_account_data()
 
 
-@bp.route('/account/delete/<int:entry_id>')
+@bp.route('/delete/<int:entry_id>')
 def delete_row(entry_id):
     entry = Account.query.get_or_404(int(entry_id))
     db.session.delete(entry)

@@ -7,7 +7,7 @@ from sqlalchemy import func, select, text
 
 from application import db
 from application.form import TRANSACTION_CATEGORY, BulkDataForm, UserDataForm
-from application.models import IncomeExpenses, Category
+from application.models import Transactions, Category
 
 bp = Blueprint('bp_dashboard', __name__)
 
@@ -28,11 +28,11 @@ def dashboard():
             """SELECT credit.agg_date, credit.income, debit.expense
                     FROM
                         (SELECT strftime('%m-%Y', date) AS agg_date, SUM(amount) AS income
-                        FROM income_expenses
+                        FROM transactions
                         WHERE category_id != 'Transfer' AND category_id != 'EXCLUDE' AND type == 'credit'
                         GROUP BY agg_date) AS credit,
                         (SELECT strftime('%m-%Y', date) AS agg_date, SUM(amount) AS expense
-                        FROM income_expenses
+                        FROM transactions
                         WHERE category_id != 'Transfer' AND category_id != 'EXCLUDE' AND type == 'debit'
                         GROUP BY agg_date) AS debit
                     WHERE credit.agg_date == debit.agg_date
@@ -42,28 +42,28 @@ def dashboard():
 
 
     category_comparison = (
-        db.session.execute(select(IncomeExpenses.category_id, func.sum(IncomeExpenses.amount))
+        db.session.execute(select(Transactions.category_id, func.sum(Transactions.amount))
         .filter(
-            IncomeExpenses.category_id != "Transfer",
-            IncomeExpenses.category_id != "EXCLUDE",
-            IncomeExpenses.type == "debit",
-            IncomeExpenses.date >= start_date,
-            IncomeExpenses.date < end_date,
+            Transactions.category_id != "Transfer",
+            Transactions.category_id != "EXCLUDE",
+            Transactions.type == "debit",
+            Transactions.date >= start_date,
+            Transactions.date < end_date,
         )
-        .group_by(IncomeExpenses.category_id))
+        .group_by(Transactions.category_id))
         .all()
     )
 
     dates = (
-        db.session.execute(select(IncomeExpenses.date, func.sum(IncomeExpenses.amount))
+        db.session.execute(select(Transactions.date, func.sum(Transactions.amount))
         .filter(
-            IncomeExpenses.category_id != "Transfer",
-            IncomeExpenses.category_id != "EXCLUDE",
-            IncomeExpenses.type == "debit",
-            IncomeExpenses.date >= start_date,
-            IncomeExpenses.date < end_date,
+            Transactions.category_id != "Transfer",
+            Transactions.category_id != "EXCLUDE",
+            Transactions.type == "debit",
+            Transactions.date >= start_date,
+            Transactions.date < end_date,
         )
-        .group_by(IncomeExpenses.date))
+        .group_by(Transactions.date))
         .all()
     )
 
@@ -91,11 +91,11 @@ def send_dashboard_data():
             """SELECT credit.agg_date, credit.income, debit.expense
                     FROM
                         (SELECT strftime('%m-%Y', date) AS agg_date, SUM(amount) AS income
-                        FROM income_expenses
+                        FROM transactions
                         WHERE category_id != 'Transfer' AND category_id != 'EXCLUDE' AND type == 'credit'
                         GROUP BY agg_date) AS credit,
                         (SELECT strftime('%m-%Y', date) AS agg_date, SUM(amount) AS expense
-                        FROM income_expenses
+                        FROM transactions
                         WHERE category_id != 'Transfer' AND type == 'debit'
                         GROUP BY agg_date) AS debit
                     WHERE credit.agg_date == debit.agg_date
@@ -105,28 +105,28 @@ def send_dashboard_data():
 
 
     category_comparison = (
-        db.session.execute(select(IncomeExpenses.category_id, Category.type, func.sum(IncomeExpenses.amount))
+        db.session.execute(select(Transactions.category_id, Category.type, func.sum(Transactions.amount))
         .join(Category)
         .filter(
-            IncomeExpenses.category_id != "Transfer",
-            IncomeExpenses.category_id != "EXCLUDE",
-            IncomeExpenses.type == "debit",
-            IncomeExpenses.date >= start_date,
-            IncomeExpenses.date < end_date,
+            Transactions.category_id != "Transfer",
+            Transactions.category_id != "EXCLUDE",
+            Transactions.type == "debit",
+            Transactions.date >= start_date,
+            Transactions.date < end_date,
         )
-        .group_by(IncomeExpenses.category_id)
+        .group_by(Transactions.category_id)
         .order_by(Category.type))
         .all()
     )
     category_type_comparison = (
-        db.session.execute(select(Category.type, func.sum(IncomeExpenses.amount))
+        db.session.execute(select(Category.type, func.sum(Transactions.amount))
         .join(Category)
         .filter(
-            IncomeExpenses.category_id != "Transfer",
-            IncomeExpenses.category_id != "EXCLUDE",
-            IncomeExpenses.type == "debit",
-            IncomeExpenses.date >= start_date,
-            IncomeExpenses.date < end_date,
+            Transactions.category_id != "Transfer",
+            Transactions.category_id != "EXCLUDE",
+            Transactions.type == "debit",
+            Transactions.date >= start_date,
+            Transactions.date < end_date,
         )
         .group_by(Category.type)
         .order_by(Category.type))
@@ -134,15 +134,15 @@ def send_dashboard_data():
     )
 
     dates = (
-        db.session.execute(select(IncomeExpenses.date, func.sum(IncomeExpenses.amount))
+        db.session.execute(select(Transactions.date, func.sum(Transactions.amount))
         .filter(
-            IncomeExpenses.category_id != "Transfer",
-            IncomeExpenses.category_id != "EXCLUDE",
-            IncomeExpenses.type == "debit",
-            IncomeExpenses.date >= start_date,
-            IncomeExpenses.date < end_date,
+            Transactions.category_id != "Transfer",
+            Transactions.category_id != "EXCLUDE",
+            Transactions.type == "debit",
+            Transactions.date >= start_date,
+            Transactions.date < end_date,
         )
-        .group_by(IncomeExpenses.date))
+        .group_by(Transactions.date))
         .all()
     )
 

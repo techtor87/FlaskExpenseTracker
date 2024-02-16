@@ -8,6 +8,7 @@ import plaid
 from plaid.model.products import Products
 from plaid.api import plaid_api
 
+from apscheduler.schedulers.background import BackgroundScheduler
 
 load_dotenv()
 
@@ -20,7 +21,7 @@ app.config['DEBUG'] = True
 db = SQLAlchemy(app)
 
 # IMPORT MODELS AFTER CREATING SQLALCHEMY.DB BUT BEFORE CREATING THE DATABASE
-from application.models import Category, IncomeExpenses, Account, Rules
+from application.models import Category, Transactions, Account, Rules
 with app.app_context():
     db.create_all()
 
@@ -52,6 +53,9 @@ if PLAID_ENV == 'development':
 
 if PLAID_ENV == 'production':
     host = plaid.Environment.Production
+
+if (access_token := os.getenv('PLAID_ACCESS_TOKEN')) == '':
+   access_token = None
 
 def empty_to_none(field):
     value = os.getenv(field)
@@ -96,18 +100,21 @@ from application.routes_others import bp as bp_other
 from application.routes_dashboard import bp as bp_dashboard
 from application.routes_transactions import bp as bp_transaction
 from application.routes_plaid import bp as bp_plaid
+from application.routes_plaid_frontend import bp as bp_frontend
 from application.routes_category import bp as bp_category
 from application.routes_balances import bp as bp_balance
 app.register_blueprint(bp_other)
 app.register_blueprint(bp_dashboard)
 app.register_blueprint(bp_transaction)
 app.register_blueprint(bp_plaid)
+app.register_blueprint(bp_frontend)
 app.register_blueprint(bp_category)
 app.register_blueprint(bp_balance)
 
 
 from sqlalchemy import func, select, update, delete, text
 from application.models import Category
+import plaid
 
 TRANSACTION_CATEGORY = [
     ("EXCLUDE", "EXCLUDE"),
@@ -190,3 +197,23 @@ def fill_category_table():
 
 with app.app_context():
     fill_category_table()   # checks if cateogry table is filled and fills it if it's empty
+
+import application.plaid_functions as plaid_functions
+
+
+def initialize_requests():
+    return
+
+def update_plaid_data():
+    print('reoccuring task')
+    with app.app_context():
+        # plaid_functions.get_all_transactions()
+        plaid_functions.get_all_balances()
+        # plaid_functions.get_all_assets()
+        # plaid_functions.get_all_holdings()
+    return
+
+scheduler = BackgroundScheduler()
+initialize_requests()
+job = scheduler.add_job(update_plaid_data, 'interval', minutes=1)
+scheduler.start()

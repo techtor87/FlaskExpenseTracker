@@ -7,7 +7,7 @@ from sqlalchemy import func, select, update, delete, text
 
 from application import db
 from application.form import BulkDataForm, UserDataForm
-from application.models import IncomeExpenses, Category
+from application.models import Transactions, Category
 
 bp = Blueprint('bp_transactions', __name__)
 
@@ -23,9 +23,9 @@ def transactions_view():
     else:
         end_date = start_date + relativedelta(months=1)
 
-    entries = IncomeExpenses.query.filter(
-        IncomeExpenses.date >= start_date,
-        IncomeExpenses.date < end_date
+    entries = Transactions.query.filter(
+        Transactions.date >= start_date,
+        Transactions.date < end_date
     )
     return render_template(
         "transactions.html", entries=entries, start_date=start_date.strftime("%Y-%m"), end_date=end_date.strftime("%Y-%m")
@@ -43,8 +43,8 @@ def get_categories():
 def update_row():
     new_data = json.loads(request.args.get('new_data'))
     db.session.execute(
-        update(IncomeExpenses)
-        .where(IncomeExpenses.id==new_data['id'])
+        update(Transactions)
+        .where(Transactions.id==new_data['id'])
         .values({
             "date": datetime.strptime(new_data['date'], "%Y-%m-%d"),
             "description":new_data['description'],
@@ -65,7 +65,7 @@ def get_table_data_client(start_date, end_date):
 
     entries = db.session.execute(
         text("""SELECT *
-                FROM income_expenses
+                FROM transactions
                 WHERE date >= :start_date AND date < :end_date
             """)
         ,
@@ -96,7 +96,7 @@ def get_table_data(start_date, end_date):
 
 def buildSql(request):
     return text(createSelectSql(request)
-        + ' FROM income_expenses'
+        + ' FROM transactions'
         + createWhereSql(request)
         + createGroupBySql(request)
         + createOrderBySql(request)

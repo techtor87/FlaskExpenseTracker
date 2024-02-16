@@ -3,10 +3,14 @@ import os
 import datetime as dt
 import json
 import time
+import datetime
 
 import application as app
+from application import db
+from application.models import Account, Balance, Transactions
+from sqlalchemy import func, select, update, delete, text
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template
 import plaid
 from plaid.model.payment_amount import PaymentAmount
 from plaid.model.payment_amount_currency import PaymentAmountCurrency
@@ -47,7 +51,10 @@ from plaid.model.transfer_create_idempotency_key import TransferCreateIdempotenc
 from plaid.model.transfer_user_address_in_request import TransferUserAddressInRequest
 from plaid.api import plaid_api
 
+
+
 bp = Blueprint('bp_plaid', __name__)
+
 
 @bp.route('/api/info', methods=['POST'])
 def info():
@@ -153,13 +160,35 @@ def get_access_token():
     global access_token
     global item_id
     global transfer_id
+
     public_token = request.form['public_token']
     try:
         exchange_request = ItemPublicTokenExchangeRequest(
             public_token=public_token)
         exchange_response = app.client.item_public_token_exchange(exchange_request)
         access_token = exchange_response['access_token']
-        item_id = exchange_response['item_id']
+
+        item_data = item()
+        accounts_data = get_accounts()
+
+        for json_account in accounts_data.json['accounts']:
+            db.session.add(Account(
+                id=json_account.get('persistent_account_id'),
+                bank=item_data.json['institution'].get('name'),
+                account=json_account.get('name'),
+                retirement= True if json_account.get('retirement') else False,
+                type=json_account.get('subtype'),
+                plaid_item_id=access_token,
+            ))
+
+            db.session.add(Balance(
+                date = datetime.datetime.today().date(),
+                bank_id = json_account['persistent_account_id'],
+                value = json_account['balances']['current'])
+            )
+
+        db.session.commit()
+
         return jsonify(exchange_response.to_dict())
     except plaid.ApiException as e:
         return json.loads(e.body)
@@ -170,7 +199,7 @@ def get_access_token():
 
 
 @bp.route('/api/auth', methods=['GET'])
-def get_auth():
+def get_auth(local_token=None):
     try:
        request = AuthGetRequest(
             access_token=access_token
@@ -188,7 +217,7 @@ def get_auth():
 
 
 @bp.route('/api/transactions', methods=['GET'])
-def get_transactions():
+def get_transactions(local_token=None):
     # Set cursor to empty to receive all historical updates
     cursor = ''
 
@@ -201,7 +230,7 @@ def get_transactions():
         # Iterate through each page of new transaction updates for item
         while has_more:
             request = TransactionsSyncRequest(
-                access_token=access_token,
+                access_token=local_token if local_token else access_token,
                 cursor=cursor,
             )
             response = app.client.transactions_sync(request).to_dict()
@@ -229,10 +258,10 @@ def get_transactions():
 
 
 @bp.route('/api/identity', methods=['GET'])
-def get_identity():
+def get_identity(local_token=None):
     try:
         request = IdentityGetRequest(
-            access_token=access_token
+            access_token=local_token if local_token else access_token,
         )
         response = app.client.identity_get(request)
         pretty_print_response(response.to_dict())
@@ -248,13 +277,13 @@ def get_identity():
 
 
 @bp.route('/api/balance', methods=['GET'])
-def get_balance():
+def get_balance(local_token=None):
     try:
         request = AccountsBalanceGetRequest(
-            access_token=access_token
+            access_token=local_token if local_token else access_token,
         )
         response = app.client.accounts_balance_get(request)
-        pretty_print_response(response.to_dict())
+        # pretty_print_response(response.to_dict())
         return jsonify(response.to_dict())
     except plaid.ApiException as e:
         error_response = format_error(e)
@@ -266,13 +295,13 @@ def get_balance():
 
 
 @bp.route('/api/accounts', methods=['GET'])
-def get_accounts():
+def get_accounts(local_token=None):
     try:
         request = AccountsGetRequest(
-            access_token=access_token
+            access_token=local_token if local_token else access_token,
         )
         response = app.client.accounts_get(request)
-        pretty_print_response(response.to_dict())
+        # pretty_print_response(response.to_dict())
         return jsonify(response.to_dict())
     except plaid.ApiException as e:
         error_response = format_error(e)
@@ -286,10 +315,10 @@ def get_accounts():
 
 
 @bp.route('/api/assets', methods=['GET'])
-def get_assets():
+def get_assets(local_token=None):
     try:
         request = AssetReportCreateRequest(
-            access_tokens=[access_token],
+            access_tokens=[local_token if local_token else access_token],
             days_requested=60,
             options=AssetReportCreateRequestOptions(
                 webhook='https://www.example.com',
@@ -358,9 +387,10 @@ def get_assets():
 
 
 @bp.route('/api/holdings', methods=['GET'])
-def get_holdings():
+def get_holdings(local_token=None):
     try:
-        request = InvestmentsHoldingsGetRequest(access_token=access_token)
+
+        request = InvestmentsHoldingsGetRequest(access_token=local_token if local_token else access_token)
         response = app.client.investments_holdings_get(request)
         pretty_print_response(response.to_dict())
         return jsonify({'error': None, 'holdings': response.to_dict()})
@@ -374,7 +404,7 @@ def get_holdings():
 
 
 @bp.route('/api/investments_transactions', methods=['GET'])
-def get_investments_transactions():
+def get_investments_transactions(local_token=None):
     # Pull transactions for the last 30 days
 
     start_date = (dt.datetime.now() - dt.timedelta(days=(30)))
@@ -382,7 +412,7 @@ def get_investments_transactions():
     try:
         options = InvestmentsTransactionsGetRequestOptions()
         request = InvestmentsTransactionsGetRequest(
-            access_token=access_token,
+            access_token=local_token if local_token else access_token,
             start_date=start_date.date(),
             end_date=end_date.date(),
             options=options
@@ -401,15 +431,16 @@ def get_investments_transactions():
 # Authorize a transfer
 
 @bp.route('/api/transfer_authorize', methods=['GET'])
-def transfer_authorization():
+def transfer_authorization(local_token=None):
     global authorization_id
     global account_id
-    request = AccountsGetRequest(access_token=access_token)
+
+    request = AccountsGetRequest(access_token=local_token if local_token else access_token)
     response = app.client.accounts_get(request)
     account_id = response['accounts'][0]['account_id']
     try:
         request = TransferAuthorizationCreateRequest(
-            access_token=access_token,
+            access_token=local_token if local_token else access_token,
             account_id=account_id,
             type=TransferType('debit'),
             network=TransferNetwork('ach'),
@@ -438,10 +469,10 @@ def transfer_authorization():
 # Create Transfer for a specified Transfer ID
 
 @bp.route('/api/transfer_create', methods=['GET'])
-def transfer():
+def transfer(local_token=None):
     try:
         request = TransferCreateRequest(
-            access_token=access_token,
+            access_token=local_token if local_token else access_token,
             account_id=account_id,
             authorization_id=authorization_id,
             description='Debit')
@@ -457,7 +488,7 @@ def transfer():
 
 
 @bp.route('/api/payment', methods=['GET'])
-def payment():
+def payment(local_token=None):
     global payment_id
     try:
         request = PaymentInitiationPaymentGetRequest(payment_id=payment_id)
@@ -474,9 +505,9 @@ def payment():
 
 
 @bp.route('/api/item', methods=['GET'])
-def item():
+def item(local_token=None):
     try:
-        request = ItemGetRequest(access_token=access_token)
+        request = ItemGetRequest(access_token=local_token if local_token else access_token)
         response = app.client.item_get(request)
         request = InstitutionsGetByIdRequest(
             institution_id=response['item']['institution_id'],

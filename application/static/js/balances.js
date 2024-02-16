@@ -1,4 +1,5 @@
 let gridApi;
+const formatter = new Intl.DateTimeFormat('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
 const gridOptions = {
     autoSizeStrategy: {type: 'fitCellContents'},
@@ -7,7 +8,7 @@ const gridOptions = {
     undoRedoCellEditing: true,
     undoRedoCellEditingLimit: 40,
     defaultColDef: {
-        flex:1,
+        // flex:1,
         editable: true,
         filter: 'agSetColumnFilter',
         menuTabs: ['filterMenuTab'],
@@ -25,6 +26,7 @@ const gridOptions = {
         {
             field: 'date',
             cellEditor: 'agDateStringCellEditor',
+            // valueFormatter: (params) => { return (params.value) ? formatter.format(Date(params.value)) : null; },
             filterParams: {
                 treeList: true,
             },
@@ -42,7 +44,7 @@ const gridOptions = {
         },
         {
             field: 'value',
-            valueFormatter: (params) => { return '$' + params.value.toLocaleString(); },
+            valueFormatter: (params) => { return (params.value) ? '$' + params.value.toLocaleString() : null; },
         },
         {
             field: 'retirement',
@@ -76,8 +78,19 @@ const gridOptions = {
     groupDefaultExpanded: 1,
     rowSelection: 'single',
     onCellValueChanged: cellValueChanged,
+    onGridReady: autoSizeAll,
+    onFirstDataRendered: autoSizeAll,
+    onGroupExpandedOrCollapsed: autoSizeAll,
     debug: true,
 };
+
+function autoSizeAll(params) {
+
+    const colApi = params.columnApi;
+    colApi.autoSizeColumns(
+        colApi.getAllGridColumns().filter(column => !column.colDef.suppressSizeToFit),
+    );
+}
 
 // setup the grid after the page has finished loading
 document.addEventListener('DOMContentLoaded', function () {
