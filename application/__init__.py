@@ -205,7 +205,7 @@ def initialize_requests():
     return
 
 def update_plaid_data():
-    print('reoccuring task')
+    # print('reoccuring task')
     with app.app_context():
         # plaid_functions.get_all_transactions()
         plaid_functions.get_all_balances()

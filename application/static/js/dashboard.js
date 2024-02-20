@@ -9,6 +9,18 @@ function moneyToolTipRenderer({datum, xKey, yKey}) {
     }
 };
 
+const date_options = {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+}
+function balanceToolTipRenderer({datum, xKey, yKey}) {
+    return {
+        title: new Date(datum[xKey]).toLocaleDateString(undefined, date_options),
+        content: USD.format(datum[yKey]),
+    }
+};
+
 function moneyDoughnutToolTipRenderer({datum, angleKey}) {
     return {
         content: USD.format(datum[angleKey]),
@@ -167,45 +179,49 @@ document.addEventListener('DOMContentLoaded', function () {
                 title: {text: 'Account Balances over Time'},
                 // Data: Data to be displayed in the chart
                 data: res.net_worth_data,
-                theme: {
-                    overrides: {
-                        line: {
-                            series: {
-                                lineDash: [12, 3],
-                                marker: {
-                                    enabled: false,
-                                },
-                            },
-                        },
-                    },
+                navigator: {
+                    enabled: true,
+                    height: 15,
                 },
-                // Series: Defines which chart type and data to use
-                series: [
+                axes: [
                     {
-                        type: 'line',
-                        xKey: 'date',
-                        yKey: 'checking',
-                        yName: 'Ally - Checking',
-                        tooltip: {
-                            renderer: moneyToolTipRenderer
+                        type: "time",
+                        position: "bottom",
+                        label: {
+                            format: '%Y-%m-%d',
                         },
                     },
                     {
-                        type: 'line',
-                        xKey: 'date',
-                        yKey: 'total',
-                        yName: 'Net Worth',
-                        tooltip: {
-                            renderer: moneyToolTipRenderer
+                        type: "number",
+                        position: "left",
+                        label: {
+                            format: "$ #{.2f}",
                         },
                     },
                 ],
+                series: [],
             };
+
+            for (let account in res.net_worth_data){
+                for (let item in res.net_worth_data[account]){
+                    res.net_worth_data[account][item]['date'] = Date.parse(res.net_worth_data[account][item]['date'])
+                }
+                let newLine = {
+                    data: res.net_worth_data[account],
+                    type: 'line',
+                    xKey: 'date',
+                    yKey: 'value',
+                    yName: account,
+                    tooltip: {
+                        renderer: balanceToolTipRenderer
+                    },
+                }
+                net_worth_options.series.push(newLine)
+            }
 
             const income_expense_chart = agCharts.AgCharts.create(income_vs_expense_options);
             const expense_category_chart = agCharts.AgCharts.create(expense_vs_category_options);
             const time_expense_chart = agCharts.AgCharts.create(overtime_expenditure_options);
             const net_worth_chart = agCharts.AgCharts.create(net_worth_options);
-
     })
 });

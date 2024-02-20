@@ -7,7 +7,7 @@ from sqlalchemy import func, select, text
 
 from application import db
 from application.form import TRANSACTION_CATEGORY, BulkDataForm, UserDataForm
-from application.models import Transactions, Category
+from application.models import Transactions, Category, Balance, Account
 
 bp = Blueprint('bp_dashboard', __name__)
 
@@ -146,13 +146,29 @@ def send_dashboard_data():
         .all()
     )
 
+    date_balance = {}
+    balance_dates = {}
+    for account in Account.query.all():
+        balances = Balance.query.where(Balance.bank_id == account.id).order_by(Balance.date).all()
+        balance_dates[f'{account.bank}-{account.account}'] = []
+        for balance_item in balances:
+            balance_dates[f'{account.bank}-{account.account}'].append({
+                # 'date': balance_item.date.strftime('%m-%d-%Y'),
+                'date': balance_item.date,
+                'value': float(balance_item.value)
+            })
+
     expense_category_data = {'category': [{'category': row[0], 'category_type': row[1], 'total': float(row[2])} for row in category_comparison],
         'category_type': [{'type': row[0], 'total': float(row[1])} for row in category_type_comparison],
     }
     income_expense_data = [{'date': row[0], 'income': float(row[1]), 'expense': float(row[2]*-1), 'total': float(row[1])-float(row[2])} for row in income_vs_expense]
     over_time_expenditure = [{'date': row[0].strftime("%m-%d-%y"), 'total': float(row[1])} for row in dates]
 
-    return make_response(jsonify(expense_category_data=expense_category_data, income_expense_data=income_expense_data, over_time_expenditure=over_time_expenditure), 200) # HTTP_200_OK
+    return make_response(jsonify(expense_category_data=expense_category_data,
+                                 income_expense_data=income_expense_data,
+                                 over_time_expenditure=over_time_expenditure,
+                                 net_worth_data=balance_dates),
+                         200) # HTTP_200_OK
 
 
 def check_content_type(content_type):

@@ -192,6 +192,8 @@ def get_access_token():
         return jsonify(exchange_response.to_dict())
     except plaid.ApiException as e:
         return json.loads(e.body)
+    except Exception as e:
+        print(e)
 
 
 # Retrieve ACH or ETF account numbers for an Item
