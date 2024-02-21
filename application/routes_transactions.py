@@ -46,13 +46,13 @@ def update_row():
         update(Transactions)
         .where(Transactions.id==new_data['id'])
         .values({
-            "date": datetime.strptime(new_data['date'], "%Y-%m-%d"),
-            "description":new_data['description'],
-            "amount":new_data['amount'],
-            "type":new_data['type'],
-            "category_id":new_data['category_id'],
-            "account":new_data['account'],
-            "bank":new_data['bank']
+            "date": datetime.strptime(new_data['date'], '%a, %d %b %Y %H:%M:%S GMT'),
+            "description": new_data['description'],
+            "amount": new_data['amount'],
+            "type": new_data['type'],
+            "category_id": new_data['category_id'],
+            # "account": new_data['account'],
+            # "bank": new_data['bank']
         })
     )
     db.session.commit()

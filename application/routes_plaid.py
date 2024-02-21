@@ -246,7 +246,7 @@ def get_transactions(local_token=None):
             # pretty_print_response(response)
 
         # Return the 8 most recent transactions
-        latest_transactions = sorted(added, key=lambda t: t['date'])[-8:]
+        latest_transactions = sorted(added, key=lambda t: t['date'])
         return jsonify({
             'latest_transactions': latest_transactions})
 

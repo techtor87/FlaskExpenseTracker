@@ -25,7 +25,8 @@ class Account(db.Model):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 class Balance(db.Model):
-    id = db.Column(db.String(30), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    account_id = db.Column(db.String(30))
     date = db.Column(db.Date, default=datetime.now, nullable=False)
     bank_id = db.Column(db.ForeignKey(Account.id), nullable=False)
     bank = db.relationship("Account", back_populates='balance')
