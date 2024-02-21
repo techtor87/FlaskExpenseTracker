@@ -181,11 +181,11 @@ def get_access_token():
                 plaid_item_id=access_token,
             ))
 
-            db.session.add(Balance(
-                date = datetime.datetime.today().date(),
-                bank_id = json_account['persistent_account_id'],
-                value = json_account['balances']['current'])
-            )
+            # db.session.add(Balance(
+            #     date = datetime.datetime.today().date(),
+            #     bank_id = json_account['persistent_account_id'],
+            #     value = json_account['balances']['current'])
+            # )
 
         db.session.commit()
 
@@ -243,7 +243,7 @@ def get_transactions(local_token=None):
             has_more = response['has_more']
             # Update cursor to the next cursor
             cursor = response['next_cursor']
-            pretty_print_response(response)
+            # pretty_print_response(response)
 
         # Return the 8 most recent transactions
         latest_transactions = sorted(added, key=lambda t: t['date'])[-8:]
@@ -516,8 +516,8 @@ def item(local_token=None):
             country_codes=list(map(lambda x: CountryCode(x), app.PLAID_COUNTRY_CODES))
         )
         institution_response = app.client.institutions_get_by_id(request)
-        pretty_print_response(response.to_dict())
-        pretty_print_response(institution_response.to_dict())
+        # pretty_print_response(response.to_dict())
+        # pretty_print_response(institution_response.to_dict())
         return jsonify({'error': None, 'item': response.to_dict()[
             'item'], 'institution': institution_response.to_dict()['institution']})
     except plaid.ApiException as e:

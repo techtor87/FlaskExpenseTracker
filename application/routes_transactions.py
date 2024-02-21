@@ -63,18 +63,10 @@ def get_table_data_client(start_date, end_date):
     start_date = datetime.strptime(start_date, "%Y-%m")
     end_date = datetime.strptime(end_date, "%Y-%m")
 
-    entries = db.session.execute(
-        text("""SELECT *
-                FROM transactions
-                WHERE date >= :start_date AND date < :end_date
-            """)
-        ,
-        {
-            'start_date': start_date,
-            'end_date': end_date
-        }).all()
-
-    return jsonify(rows=[r._asdict() for r in entries])
+    entries = Transactions.query.where((Transactions.date >= start_date) & (Transactions.date < end_date)).all()
+    # entries = [r['bank_name'] = r.bank_account.bank.account for r in entries]
+    rows = [r.as_dict() for r in entries]
+    return jsonify(rows=rows)
 
 @bp.route('/api/data/<start_date>/<end_date>', methods=['GET'])
 def get_table_data(start_date, end_date):

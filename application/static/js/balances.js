@@ -23,14 +23,14 @@ const gridOptions = {
                 applyMiniFilterWhileTyping: true,
             },
         },
-        {
-            field: 'date',
-            cellEditor: 'agDateStringCellEditor',
-            // valueFormatter: (params) => { return (params.value) ? formatter.format(Date(params.value)) : null; },
-            filterParams: {
-                treeList: true,
-            },
-        },
+        // {
+        //     field: 'date',
+        //     cellEditor: 'agDateStringCellEditor',
+        //     // valueFormatter: (params) => { return (params.value) ? formatter.format(Date(params.value)) : null; },
+        //     filterParams: {
+        //         treeList: true,
+        //     },
+        // },
         {
             field: 'bank',
             rowGroup: true,
@@ -58,7 +58,6 @@ const gridOptions = {
             filterParams: {
                 applyMiniFilterWhileTyping: true,
             },
-
         },
         {
             field: 'category',
@@ -75,7 +74,7 @@ const gridOptions = {
         field: '',
         cellRenderer: 'agGroupCellRenderer',
     },
-    groupDefaultExpanded: 1,
+    groupDefaultExpanded: 2,
     rowSelection: 'single',
     onCellValueChanged: cellValueChanged,
     onGridReady: autoSizeAll,
@@ -86,9 +85,8 @@ const gridOptions = {
 
 function autoSizeAll(params) {
 
-    const colApi = params.columnApi;
-    colApi.autoSizeColumns(
-        colApi.getAllGridColumns().filter(column => !column.colDef.suppressSizeToFit),
+    gridApi.autoSizeColumns(
+        gridApi.getAllGridColumns().filter(column => !column.colDef.suppressSizeToFit),
     );
 }
 

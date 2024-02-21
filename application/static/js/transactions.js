@@ -17,6 +17,8 @@ const gridOptions = {
             field: 'id',
             filter: false,
             editable: false,
+            hide: true,
+
         },
         {
             field: 'date',
