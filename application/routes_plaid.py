@@ -181,12 +181,6 @@ def get_access_token():
                 plaid_item_id=access_token,
             ))
 
-            # db.session.add(Balance(
-            #     date = datetime.datetime.today().date(),
-            #     bank_id = json_account['persistent_account_id'],
-            #     value = json_account['balances']['current'])
-            # )
-
         db.session.commit()
 
         return jsonify(exchange_response.to_dict())
@@ -194,6 +188,7 @@ def get_access_token():
         return json.loads(e.body)
     except Exception as e:
         print(e)
+        return json.loads(e.body)
 
 
 # Retrieve ACH or ETF account numbers for an Item

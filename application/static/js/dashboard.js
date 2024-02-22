@@ -117,11 +117,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 series: [
                     {
                         data: res.expense_category_data['category'],
-                        type: 'pie',
+                        type: 'donut',
                         angleKey: 'total',
                         sectorLabelKey: 'category',
                         outerRadiusRatio: 1,
-                        innerRadiusRatio: 0.7,
+                        innerRadiusRatio: 0.75,
                         fillOpacity: 0.5,
                         tooltip: {
                             renderer: moneyDoughnutToolTipRenderer
@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     },
                     {
                         data: res.expense_category_data['category_type'],
-                        type: 'pie',
+                        type: 'donut',
                         angleKey: 'total',
                         sectorLabelKey: 'type',
                         outerRadiusRatio: 0.7,

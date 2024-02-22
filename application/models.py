@@ -61,5 +61,8 @@ class Transactions(db.Model):
 class Rules(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
+    IF = db.Column(db.String(255), nullable=False)
+    THEN = db.Column(db.String(255), nullable=False)
+
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}

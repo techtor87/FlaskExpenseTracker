@@ -62,7 +62,7 @@
                                 <a class="nav-item nav-link" href="{{ url_for('bp_categories.categories') }}">Categories</a>
                                 <a class="nav-item nav-link" href="{{ url_for('bp.import_expense') }}">Import</a>
                                 <a class="nav-item nav-link" href="{{ url_for('bp_transactions.transactions_view') }}">Transactions</a>
-                                <a class="nav-item nav-link" href="{{ url_for('bp_frontend.frontend') }}">Plaid</a>
+                                <button class="nav-item nav-link" id="link-button">Plaid</button>
                             </div>
                         </div>
                     </nav>
@@ -85,9 +85,53 @@
             </div>
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
-        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+    <script type="text/javascript">
+        (async function($) {
+        var handler = Plaid.create({
+            // Create a new link_token to initialize Link
+            token: (await $.post('/api/create_link_token')).link_token,
+            onLoad: function() {
+            // Optional, called when Link loads
+            },
+            onSuccess: function(public_token, metadata) {
+            // Send the public_token to your app server.
+            // The metadata object contains info about the institution the
+            // user selected and the account ID or IDs, if the
+            // Account Select view is enabled.
+            $.post('/api/set_access_token', {
+                public_token: public_token,
+            });
+            },
+            onExit: function(err, metadata) {
+            // The user exited the Link flow.
+            if (err != null) {
+                // The user encountered a Plaid API error prior to exiting.
+            }
+            // metadata contains information about the institution
+            // that the user selected and the most recent API request IDs.
+            // Storing this information can be helpful for support.
+            },
+            onEvent: function(eventName, metadata) {
+            // Optionally capture Link flow events, streamed through
+            // this callback as your users connect an Item to Plaid.
+            // For example:
+            // eventName = "TRANSITION_VIEW"
+            // metadata  = {
+            //   link_session_id: "123-abc",
+            //   mfa_type:        "questions",
+            //   timestamp:       "2017-09-14T14:42:19.350Z",
+            //   view_name:       "MFA",
+            // }
+            }
+        });
+
+        $('#link-button').on('click', function(e) {
+            handler.open();
+        });
+        })(jQuery);
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
         integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
         crossorigin="anonymous"></script>
