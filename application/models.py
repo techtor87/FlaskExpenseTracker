@@ -44,11 +44,19 @@ class Transactions(db.Model):
     type = db.Column(db.String(30), default="debit", nullable=False)
     category_id = db.Column(db.ForeignKey(Category.name), nullable=False)
     category = db.relationship("Category", back_populates='transactions')
-    bank_account_id = db.Column(db.ForeignKey(Balance.id), nullable=False)
+    bank_account_id = db.Column(db.ForeignKey(Balance.account_id), nullable=False)
     bank_account = db.relationship('Balance', back_populates='transactions')
 
     def as_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        def filter_func(pair):
+            if pair[0].startswith('_'):
+                return False
+            if type(pair[1]) == Balance:
+                return False
+            return True
+        return dict(filter(filter_func, vars(self).items()))
+
+        # return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 class Rules(db.Model):
     id = db.Column(db.Integer, primary_key=True)

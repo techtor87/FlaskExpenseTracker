@@ -217,11 +217,11 @@ def get_auth(local_token=None):
 # Retrieve Transactions for an Item
 # https://plaid.com/docs/#transactions
 
-
+last_transaction_cursor = ''
 @bp.route('/api/transactions', methods=['GET'])
 def get_transactions(local_token=None):
     # Set cursor to empty to receive all historical updates
-    cursor = ''
+    global last_transaction_cursor
 
     # New transaction updates since "cursor"
     added = []
@@ -233,7 +233,7 @@ def get_transactions(local_token=None):
         while has_more:
             request = TransactionsSyncRequest(
                 access_token=local_token if local_token else access_token,
-                cursor=cursor,
+                cursor=last_transaction_cursor,
             )
             response = app.client.transactions_sync(request).to_dict()
             # Add this page of results
@@ -242,7 +242,7 @@ def get_transactions(local_token=None):
             removed.extend(response['removed'])
             has_more = response['has_more']
             # Update cursor to the next cursor
-            cursor = response['next_cursor']
+            last_transaction_cursor = response['next_cursor']
             # pretty_print_response(response)
 
         # Return the 8 most recent transactions

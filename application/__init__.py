@@ -21,7 +21,7 @@ app.config['DEBUG'] = True
 db = SQLAlchemy(app)
 
 # IMPORT MODELS AFTER CREATING SQLALCHEMY.DB BUT BEFORE CREATING THE DATABASE
-from application.models import Category, Transactions, Account, Rules
+from application.models import *
 with app.app_context():
     db.create_all()
 
@@ -200,10 +200,6 @@ with app.app_context():
 
 import application.plaid_functions as plaid_functions
 
-
-def initialize_requests():
-    return
-
 def update_plaid_data():
     # print('reoccuring task')
     with app.app_context():
@@ -214,6 +210,5 @@ def update_plaid_data():
     return
 
 scheduler = BackgroundScheduler()
-initialize_requests()
 job = scheduler.add_job(update_plaid_data, 'interval', minutes=1)
 scheduler.start()
