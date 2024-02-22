@@ -23,59 +23,8 @@ def dashboard():
     else:
         end_date = start_date + relativedelta(months=1)
 
-    income_vs_expense = (
-        db.session.execute(text(
-            """SELECT credit.agg_date, credit.income, debit.expense
-                    FROM
-                        (SELECT strftime('%m-%Y', date) AS agg_date, SUM(amount) AS income
-                        FROM transactions
-                        WHERE category_id != 'Transfer' AND category_id != 'EXCLUDE' AND type == 'credit'
-                        GROUP BY agg_date) AS credit,
-                        (SELECT strftime('%m-%Y', date) AS agg_date, SUM(amount) AS expense
-                        FROM transactions
-                        WHERE category_id != 'Transfer' AND category_id != 'EXCLUDE' AND type == 'debit'
-                        GROUP BY agg_date) AS debit
-                    WHERE credit.agg_date == debit.agg_date
-                """
-            )).all()
-    )
-
-
-    category_comparison = (
-        db.session.execute(select(Transactions.category_id, func.sum(Transactions.amount))
-        .filter(
-            Transactions.category_id != "Transfer",
-            Transactions.category_id != "EXCLUDE",
-            Transactions.type == "debit",
-            Transactions.date >= start_date,
-            Transactions.date < end_date,
-        )
-        .group_by(Transactions.category_id))
-        .all()
-    )
-
-    dates = (
-        db.session.execute(select(Transactions.date, func.sum(Transactions.amount))
-        .filter(
-            Transactions.category_id != "Transfer",
-            Transactions.category_id != "EXCLUDE",
-            Transactions.type == "debit",
-            Transactions.date >= start_date,
-            Transactions.date < end_date,
-        )
-        .group_by(Transactions.date))
-        .all()
-    )
-
-    income_category_data = [{'category': row[0], 'total': float(row[1])} for row in category_comparison]
-    income_expense_data = [{'date': row[0], 'income': float(row[1]), 'expense': float(row[2]*-1), 'total': float(row[1])-float(row[2])} for row in income_vs_expense]
-    over_time_expenditure = [{'date': row[0].strftime("%m-%d-%y"), 'total': float(row[1])} for row in dates]
-
     return render_template(
         "dashboard.html",
-        income_vs_expense_data=json.dumps(income_expense_data),
-        income_category_data=json.dumps(income_category_data),
-        over_time_expenditure=json.dumps(over_time_expenditure),
         start_date=start_date.strftime("%Y-%m"),
         end_date=end_date.strftime("%Y-%m"),
     )
@@ -161,7 +110,7 @@ def send_dashboard_data():
     expense_category_data = {'category': [{'category': row[0], 'category_type': row[1], 'total': float(row[2])} for row in category_comparison],
         'category_type': [{'type': row[0], 'total': float(row[1])} for row in category_type_comparison],
     }
-    income_expense_data = [{'date': row[0], 'income': float(row[1]), 'expense': float(row[2]*-1), 'total': float(row[1])-float(row[2])} for row in income_vs_expense]
+    income_expense_data = [{'date': row[0], 'income': row[1]*-1, 'expense': row[2]*-1, 'total': ((row[1]*-1)+(row[2]*-1))} for row in income_vs_expense]
     over_time_expenditure = [{'date': row[0].strftime("%m-%d-%y"), 'total': float(row[1])} for row in dates]
 
     return make_response(jsonify(expense_category_data=expense_category_data,
@@ -169,22 +118,3 @@ def send_dashboard_data():
                                  over_time_expenditure=over_time_expenditure,
                                  net_worth_data=balance_dates),
                          200) # HTTP_200_OK
-
-
-def check_content_type(content_type):
-    """Checks that the media type is correct"""
-    if "Content-Type" not in request.headers:
-        # bp.logger.error("No Content-Type specified.")
-        abort(
-            415, # HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            f"Content-Type must be {content_type}",
-        )
-
-    if request.headers["Content-Type"] == content_type:
-        return
-
-    # bp.logger.error("Invalid Content-Type: %s", request.headers["Content-Type"])
-    abort(
-        415, # HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-        f"Content-Type must be {content_type}",
-    )
