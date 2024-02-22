@@ -5,6 +5,12 @@ from application.models import Account, Balance, Category, Transactions, Rules
 from application.routes_plaid import get_accounts, get_balance, get_holdings, get_transactions, get_assets
 from sqlalchemy import func, select, update, delete, text, desc
 
+
+def apply_rule(rule, transaction):
+    if eval(f'transaction.{rule.if_field} {rule.if_operation} "{rule.if_statement}"'):
+        exec(f'transaction.{rule.then_field} = "{rule.then_statement}"')
+    return transaction
+
 def get_all_transactions():
     all_accounts = Account.query.all()
     for account in all_accounts:
@@ -20,6 +26,13 @@ def get_all_transactions():
                     category_id = transaction['personal_finance_category']['primary'],
                     bank_account_id = transaction['account_id']
                 )
+
+                if 'rules_list' not in locals():
+                    rules_list = Rules.query.all()
+
+                for rule in rules_list:
+                    new_transaction = apply_rule(rule, new_transaction)
+
                 db.session.add(new_transaction)
                 db.session.commit()
 

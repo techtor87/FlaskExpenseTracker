@@ -1,6 +1,6 @@
-let gridApi;
+let categoryGridApi;
 
-const gridOptions = {
+const categoryGridOptions = {
     autoSizeStrategy: {type: 'fitCellContents'},
     pagination: true,
     editType: 'fullRow',
@@ -47,18 +47,18 @@ const gridOptions = {
 
 // setup the grid after the page has finished loading
 document.addEventListener('DOMContentLoaded', function () {
-    var gridDiv = document.querySelector('#table');
-    gridApi = agGrid.createGrid(gridDiv, gridOptions);
-    updateData();
+    var gridDiv = document.querySelector('#category_table');
+    categoryGridApi = agGrid.createGrid(gridDiv, categoryGridOptions);
+    updateCategoryData();
 });
 
-function updateData() {
+function updateCategoryData() {
     return fetch('/category/data', {
             method: 'GET',
             })
         .then(httpResponse => httpResponse.json())
         .then(response => {
-            gridApi.setGridOption('rowData', response.category_list);
+            categoryGridApi.setGridOption('rowData', response.category_list);
         })
         .catch(error => {
             console.error(error);
@@ -69,17 +69,17 @@ function cellValueChanged(event) {
     var data = event.data;
     console.log('onRowValueChanged: ('+data+')')
     $.getJSON("/category/update", {'colId': event.column.colId, 'old_value': event.oldValue, 'new_data': JSON.stringify(data)});
-    updateData();
+    updateCategoryData();
 }
 
 function addRow() {
     console.log('Add Empty Row')
-    gridApi.applyTransaction({ add: [{ }]});
+    categoryGridApi.applyTransaction({ add: [{ }]});
 }
 
 function deleteRow() {
-    var data = gridApi.getSelectedRows();
+    var data = categoryGridApi.getSelectedRows();
     console.log('deleteRow: ('+data+')')
     $.getJSON("/category/delete", {'delete_data': JSON.stringify(data)});
-    updateData();
+    updateCategoryData();
 }

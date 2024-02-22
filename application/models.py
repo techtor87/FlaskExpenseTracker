@@ -59,10 +59,14 @@ class Transactions(db.Model):
         # return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 class Rules(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
-    IF = db.Column(db.String(255), nullable=False)
-    THEN = db.Column(db.String(255), nullable=False)
+    if_field = db.Column(db.String(255), nullable=False)
+    if_operation = db.Column(db.String(10),nullable=False)
+    if_statement = db.Column(db.String(255))
+
+    then_field = db.Column(db.String(255), nullable=False)
+    then_statement = db.Column(db.String(255), nullable=False)
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}

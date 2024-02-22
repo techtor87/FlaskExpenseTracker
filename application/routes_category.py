@@ -13,16 +13,14 @@ bp = Blueprint('bp_categories', __name__)
 
 @bp.route('/categories')
 def categories():
-    category_list = [{'name': (r._asdict())['name'], 'type': (r._asdict())['type']} for r in db.session.execute(
-        select(Category.name, Category.type)
-        ).all()]
     return render_template('category_management.html')#, category_list=category_list)
 
 @bp.route('/category/data')
 def get_category_data():
-    category_list = [{'name': (r._asdict())['name'], 'type': (r._asdict())['type']} for r in db.session.execute(
-        select(Category.name, Category.type)
-        ).all()]
+    category_list = [r.as_dict()
+        for r
+        in Category.query.all()
+        ]
     return jsonify(category_list=category_list)
 
 @bp.route('/category/update')

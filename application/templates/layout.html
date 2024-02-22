@@ -57,11 +57,11 @@
                         </button>
                         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                             <div class="navbar-nav ml-auto mr-3">
-                                <a class="nav-item nav-link" href="{{ url_for('bp.balances') }}">Net Worth</a>
-                                <a class="nav-item nav-link" href="{{ url_for('bp.add_expense') }}">Add</a>
-                                <a class="nav-item nav-link" href="{{ url_for('bp_categories.categories') }}">Categories</a>
-                                <a class="nav-item nav-link" href="{{ url_for('bp.import_expense') }}">Import</a>
+                                <a class="nav-item nav-link" href="{{ url_for('bp.balances') }}">Accounts</a>
                                 <a class="nav-item nav-link" href="{{ url_for('bp_transactions.transactions_view') }}">Transactions</a>
+                                <a class="nav-item nav-link" href="{{ url_for('bp.add_expense') }}">Add</a>
+                                <a class="nav-item nav-link" href="{{ url_for('bp.import_expense') }}">Import</a>
+                                <a class="nav-item nav-link" href="{{ url_for('bp_categories.categories') }}">Categories and Rules</a>
                                 <button class="nav-item nav-link" id="link-button">Plaid</button>
                             </div>
                         </div>

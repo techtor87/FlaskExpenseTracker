@@ -102,6 +102,7 @@ from application.routes_transactions import bp as bp_transaction
 from application.routes_plaid import bp as bp_plaid
 from application.routes_plaid_frontend import bp as bp_frontend
 from application.routes_category import bp as bp_category
+from application.routes_rules import bp as bp_rules
 from application.routes_balances import bp as bp_balance
 app.register_blueprint(bp_other)
 app.register_blueprint(bp_dashboard)
@@ -109,6 +110,7 @@ app.register_blueprint(bp_transaction)
 app.register_blueprint(bp_plaid)
 app.register_blueprint(bp_frontend)
 app.register_blueprint(bp_category)
+app.register_blueprint(bp_rules)
 app.register_blueprint(bp_balance)
 
 
@@ -211,4 +213,5 @@ def update_plaid_data():
 
 scheduler = BackgroundScheduler()
 job = scheduler.add_job(update_plaid_data, 'interval', minutes=1)
+update_plaid_data()
 scheduler.start()
