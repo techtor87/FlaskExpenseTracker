@@ -104,6 +104,7 @@ from application.routes_plaid_frontend import bp as bp_frontend
 from application.routes_category import bp as bp_category
 from application.routes_rules import bp as bp_rules
 from application.routes_balances import bp as bp_balance
+from application.routes_budget import bp as bp_budget
 app.register_blueprint(bp_other)
 app.register_blueprint(bp_dashboard)
 app.register_blueprint(bp_transaction)
@@ -112,6 +113,7 @@ app.register_blueprint(bp_frontend)
 app.register_blueprint(bp_category)
 app.register_blueprint(bp_rules)
 app.register_blueprint(bp_balance)
+app.register_blueprint(bp_budget)
 
 
 from sqlalchemy import func, select, update, delete, text
