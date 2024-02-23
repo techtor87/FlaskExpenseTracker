@@ -28,7 +28,8 @@ const rulesGridOptions = {
                     'description',
                     'amount',
                     'type',
-                    'bank_account_id',
+                    'bank_account.bank.bank',
+                    'bank_account.bank.account',
                 ]
             },
             menuTabs: ['filterMenuTab'],

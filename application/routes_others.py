@@ -7,7 +7,8 @@ from sqlalchemy import func, select, text
 
 from application import db
 from application.form import BulkDataForm, UserDataForm
-from application.models import Transactions, Category
+from application.models import Transactions, Category, Rules
+from application.plaid_functions import apply_rule
 
 bp = Blueprint('bp', __name__)
 
@@ -36,6 +37,9 @@ def add_expense():
 def import_expense():
     form = BulkDataForm()
     if form.validate_on_submit():
+        if 'rules_list' not in locals():
+            rules_list = Rules.query.all()
+
         if '\t' in form.bulk_data.data:
             for line in form.bulk_data.data.splitlines():
                 data = line.split("\t")
@@ -49,6 +53,8 @@ def import_expense():
                         account=data[6],
                         bank=data[6],
                     )
+                    for rule in rules_list:
+                        entry = apply_rule(rule, entry)
                     db.session.add(entry)
         elif 'Date,' in form.bulk_data.data or '"Date",' in form.bulk_data.data:
             for line in form.bulk_data.data.splitlines():
@@ -64,6 +70,8 @@ def import_expense():
                         account=data[6],
                         bank=data[6],
                     )
+                    for rule in rules_list:
+                        entry = apply_rule(rule, entry)
                     db.session.add(entry)
 
         flash(
@@ -81,7 +89,3 @@ def delete(entry_id):
     db.session.commit()
     flash("Entry deleted", "success")
     return redirect(url_for("bp_transactions.transactions_view"))
-
-@bp.route('/balances')
-def balances():
-    return render_template('balances.html')
