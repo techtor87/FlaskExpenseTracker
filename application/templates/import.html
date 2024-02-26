@@ -1,9 +1,9 @@
 {% extends 'layout.html' %}
 {% block content %}
-<div class="col-xs-10 col-sm-6 col-md-6">
+<div class="col-xs-10 col-sm-6 md:w-1/2 pr-4 pl-4">
     <h2>Import Transactions</h2>
-    <div class="card card-style mb-2">
-        <div class="card-body">
+    <div class="relative flex flex-col min-w-0 rounded break-words border bg-white border-1 border-gray-300 card-style mb-2">
+        <div class="flex-auto p-6">
             <form action="" method="POST">
                 {{ form.csrf_token() }}
                 <fieldset class="form-group">
