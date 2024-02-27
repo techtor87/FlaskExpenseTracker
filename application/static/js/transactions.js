@@ -150,8 +150,9 @@ function getCategories(params) {
             catagory_array = response.categories;
             return response.categories;
         })
-    };
+};
 
+document.getElementById("date_selector").style.visibility = 'visible'
 // setup the grid after the page has finished loading
 document.addEventListener('DOMContentLoaded', function () {
     var gridDiv = document.querySelector('#table');

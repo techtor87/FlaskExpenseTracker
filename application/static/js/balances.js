@@ -88,7 +88,7 @@ function autoSizeAll(params) {
     gridApi.autoSizeColumns(
         gridApi.getAllGridColumns().filter(column => !column.colDef.suppressSizeToFit),
     );
-}
+};
 
 // setup the grid after the page has finished loading
 document.addEventListener('DOMContentLoaded', function () {

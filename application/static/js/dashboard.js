@@ -34,6 +34,7 @@ function categoryTypeToolTipRenderer({datum, angleKey}) {
     }
 };
 
+document.getElementById("date_selector").style.visibility = 'visible'
 // setup the grid after the page has finished loading
 document.addEventListener('DOMContentLoaded', function () {
     console.log('page loaded. getting data...');
