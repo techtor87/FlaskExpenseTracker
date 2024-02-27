@@ -38,17 +38,11 @@ function categoryTypeToolTipRenderer({datum, angleKey}) {
 document.addEventListener('DOMContentLoaded', function () {
     console.log('page loaded. getting data...');
 
-    let start_date = document.getElementById('start_date').value
-    let end_date = document.getElementById('end_date').value
-
     let ajax = $.ajax({
         type: "POST",
         url: `/dashboard/data`,
         contentType: "application/json;charset=UTF-8",
-        data: JSON.stringify({
-            'start_date': start_date,
-            'end_date': end_date,
-        }),
+        data: JSON.stringify(),
     })
 
     ajax.done(function(res){

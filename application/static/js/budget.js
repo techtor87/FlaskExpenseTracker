@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function updateData() {
-    return fetch('/budget/data/' + document.getElementById('start_date').value + '/'+document.getElementById('end_date').value, {
+    return fetch('/budget/data', {
             method: 'GET',
             })
         .then(httpResponse => httpResponse.json())

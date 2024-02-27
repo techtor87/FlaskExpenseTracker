@@ -44,14 +44,12 @@
                 <header class="mb-1">
                     <nav class="relative flex flex-wrap items-center content-between py-2 px-3 text-white bg-gray-900">
                         <a class="inline-block py-1 mr-4 text-xl no-underline hover:no-underline whitespace-no-wrap" href="{{ url_for('bp_dashboard.dashboard') }}">Personal Budget Tracker</a>
-                        {% if start_date is defined %}
-                        <form class="inline-block py-1 " method="POST">
+                        <form class="inline-block py-1" style="visibility: hidden;" method="POST">
                             <label for="start_date"></label>
-                            <input class="mx-1 text-black" type="month" id="start_date" name="start_date" value="{{ start_date }}" required onchange="this.form.submit()" />
+                            <input class="mx-1 text-black" type="month" id="start_date" name="start_date" value="{{ session['start_date'] }}" required onchange="this.form.submit()" />
                             <label for="end_date" class="mb-0"> To </label>
-                            <input class="mx-1 text-black" type="month" id="end_date" name="end_date" value="{{ end_date }}" required onchange="this.form.submit()" />
+                            <input class="mx-1 text-black" type="month" id="end_date" name="end_date" value="{{ session['end_date'] }}" required onchange="this.form.submit()" />
                         </form>
-                        {% endif %}
                         <div class="flex-grow" id="navbarNavAltMarkup">
                             <div class="flex flex-wrap justify-end pl-0 mb-0 mx-1">
                                 <a class="inline-block py-2 px-2 no-underline hover:no-underline" href="{{ url_for('bp_budget.budget') }}">Budget</a>

@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
-from flask import Blueprint, flash, redirect, render_template, request, url_for, jsonify, abort, make_response
+from flask import Blueprint, session, flash, redirect, render_template, request, url_for, jsonify, abort, make_response
 from sqlalchemy import func, select, update, delete, text
 
 from application import db
@@ -14,22 +14,21 @@ bp = Blueprint('bp_transactions', __name__)
 @bp.route("/transactions", methods=["GET", "POST"])
 def transactions_view():
     if form_date := request.form.get("start_date"):
-        start_date = datetime.strptime(form_date, "%Y-%m")
+        session['start_date'] = form_date
     else:
-        start_date = datetime.now()
+        session['start_date'] = datetime.strftime(datetime.now(), "%Y-%m")
 
     if form_date := request.form.get("end_date"):
-        end_date = datetime.strptime(form_date, "%Y-%m")
+        session['end_date'] = form_date
     else:
-        end_date = start_date + relativedelta(months=1)
+        session['end_date'] = datetime.strftime(datetime.now() + relativedelta(months=1), "%Y-%m")
+
 
     entries = Transactions.query.filter(
-        Transactions.date >= start_date,
-        Transactions.date < end_date
+        Transactions.date >= datetime.strptime(session['start_date'], "%Y-%m"),
+        Transactions.date < datetime.strptime(session['end_date'], "%Y-%m")
     )
-    return render_template(
-        "transactions.html", entries=entries, start_date=start_date.strftime("%Y-%m"), end_date=end_date.strftime("%Y-%m")
-    )
+    return render_template("transactions.html", entries=entries)
 
 @bp.route('/api/categories')
 def get_categories():
@@ -58,23 +57,24 @@ def update_row():
     db.session.commit()
     return jsonify()
 
-@bp.route('/api/data_client/<start_date>/<end_date>', methods=['GET'])
-def get_table_data_client(start_date, end_date):
-    start_date = datetime.strptime(start_date, "%Y-%m")
-    end_date = datetime.strptime(end_date, "%Y-%m")
+@bp.route('/api/data_client', methods=['GET'])
+def get_table_data_client():
+    start_date = datetime.strptime(session['start_date'], "%Y-%m")
+    end_date = datetime.strptime(session['end_date'], "%Y-%m")
 
     entries = Transactions.query.where((Transactions.date >= start_date) & (Transactions.date < end_date)).all()
     for r in entries:
-        r.bank = r.bank_account.bank.bank
-        r.account = r.bank_account.bank.account
+        if r.bank_account:
+            r.bank = r.bank_account.bank.bank
+            r.account = r.bank_account.bank.account
     rows = [r.as_dict() for r in entries]
 
     return jsonify(rows=rows)
 
-@bp.route('/api/data/<start_date>/<end_date>', methods=['GET'])
-def get_table_data(start_date, end_date):
-    start_date = datetime.strptime(start_date, "%Y-%m")
-    end_date = datetime.strptime(end_date, "%Y-%m")
+@bp.route('/api/data', methods=['GET'])
+def get_table_data():
+    start_date = datetime.strptime(session['start_date'], "%Y-%m")
+    end_date = datetime.strptime(session['end_date'], "%Y-%m")
 
     entries = db.session.execute(buildSql(request.json),
         {

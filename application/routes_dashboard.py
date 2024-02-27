@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
-from flask import Blueprint, flash, redirect, render_template, request, url_for, jsonify, abort, make_response
+from flask import Blueprint, session, flash, redirect, render_template, request, url_for, jsonify, abort, make_response
 from sqlalchemy import func, select, text
 
 from application import db
@@ -14,26 +14,24 @@ bp = Blueprint('bp_dashboard', __name__)
 @bp.route("/", methods=["GET", "POST"])
 def dashboard():
     if form_date := request.form.get("start_date"):
-        start_date = datetime.strptime(form_date, "%Y-%m")
+        session['start_date'] = form_date
     else:
-        start_date = datetime.now()
+        session['start_date'] = datetime.strftime(datetime.now(), "%Y-%m")
 
     if form_date := request.form.get("end_date"):
-        end_date = datetime.strptime(form_date, "%Y-%m")
+        session['end_date'] = form_date
     else:
-        end_date = start_date + relativedelta(months=1)
+        session['end_date'] = datetime.strftime(datetime.now() + relativedelta(months=1), "%Y-%m")
+
 
     return render_template(
-        "dashboard.html",
-        start_date=start_date.strftime("%Y-%m"),
-        end_date=end_date.strftime("%Y-%m"),
+        "dashboard.html"
     )
 
 @bp.route("/dashboard/data", methods=['GET', 'POST'])
 def send_dashboard_data():
-    data = request.get_json()
-    start_date = datetime.strptime(data['start_date'], "%Y-%m")
-    end_date = datetime.strptime(data['end_date'], "%Y-%m")
+    start_date = datetime.strptime(session['start_date'], "%Y-%m")
+    end_date = datetime.strptime(session['end_date'], "%Y-%m")
 
     income_vs_expense = (
         db.session.execute(text(

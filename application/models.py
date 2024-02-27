@@ -26,7 +26,7 @@ class Account(db.Model):
 
 class Balance(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    account_id = db.Column(db.String(30))
+    account_id = db.Column(db.String(255))
     date = db.Column(db.Date, default=datetime.now, nullable=False)
     bank_id = db.Column(db.ForeignKey(Account.id), nullable=False)
     bank = db.relationship("Account", back_populates='balance')
@@ -44,7 +44,7 @@ class Transactions(db.Model):
     type = db.Column(db.String(30), default="debit", nullable=False)
     category_id = db.Column(db.ForeignKey(Category.name), nullable=False)
     category = db.relationship("Category", back_populates='transactions')
-    bank_account_id = db.Column(db.ForeignKey(Balance.account_id), nullable=False)
+    bank_account_id = db.Column(db.ForeignKey(Balance.account_id), nullable=True)
     bank_account = db.relationship('Balance', back_populates='transactions')
 
     def as_dict(self):

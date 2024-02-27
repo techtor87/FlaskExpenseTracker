@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
-from flask import Blueprint, flash, redirect, render_template, request, url_for, jsonify, abort, make_response
+from flask import session, Blueprint, flash, redirect, render_template, request, url_for, jsonify, abort, make_response
 from sqlalchemy import func, select, update, delete, text, insert, desc
 
 from application import db
@@ -13,21 +13,21 @@ bp = Blueprint('bp_budget', __name__)
 @bp.route('/budget', methods=['GET', 'POST'])
 def budget():
     if form_date := request.form.get("start_date"):
-        start_date = datetime.strptime(form_date, "%Y-%m")
+        session['start_date'] = form_date
     else:
-        start_date = datetime.now()
+        session['start_date'] = datetime.strftime(datetime.now(), "%Y-%m")
 
     if form_date := request.form.get("end_date"):
-        end_date = datetime.strptime(form_date, "%Y-%m")
+        session['end_date'] = form_date
     else:
-        end_date = start_date + relativedelta(months=1)
+        session['end_date'] = datetime.strftime(datetime.now() + relativedelta(months=1), "%Y-%m")
 
-    return render_template('budget.html', start_date=start_date.strftime("%Y-%m"), end_date=end_date.strftime("%Y-%m"))
+    return render_template('budget.html')
 
-@bp.route('/budget/data/<start_date>/<end_date>', methods=['GET', 'POST'])
-def get_account_data(start_date, end_date):
-    start_date = datetime.strptime(start_date, "%Y-%m")
-    end_date = datetime.strptime(end_date, "%Y-%m")
+@bp.route('/budget/data', methods=['GET', 'POST'])
+def get_account_data():
+    start_date = datetime.strptime(session['start_date'], "%Y-%m")
+    end_date = datetime.strptime(session['end_date'], "%Y-%m")
 
     entries = (
         db.session.execute(

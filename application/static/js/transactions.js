@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function () {
     gridApi = agGrid.createGrid(gridDiv, gridOptions);
 });
 
-const getData = fetch('/api/data_client/' + document.getElementById('start_date').value + '/'+document.getElementById('end_date').value, {
+const getData = fetch('/api/data_client', {
             method: 'GET',
             })
         .then(httpResponse => httpResponse.json())

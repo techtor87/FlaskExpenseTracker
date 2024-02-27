@@ -1,4 +1,6 @@
 import json
+import random
+import csv
 from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
@@ -17,13 +19,13 @@ def add_expense():
     form = UserDataForm()
     if form.validate_on_submit():
         entry = Transactions(
+            id=random.random() * 10000,
             date=form.date.data,
             description=form.description.data,
             amount=form.amount.data,
             type=form.type.data,
             category_id=form.category.data,
-            account=form.account.data,
-            bank=form.bank.data,
+            bank_account_id=form.account.data,
         )
 
         db.session.add(entry)
@@ -40,39 +42,20 @@ def import_expense():
         if 'rules_list' not in locals():
             rules_list = Rules.query.all()
 
-        if '\t' in form.bulk_data.data:
-            for line in form.bulk_data.data.splitlines():
-                data = line.split("\t")
-                if data != "" and "Date" not in data[0]:
-                    entry = Transactions(
-                        date=datetime.strptime(data[0], "%m/%d/%Y").date(),
-                        description=data[1],
-                        amount=data[3],
-                        type=data[4],
-                        category_id=data[5],
-                        account=data[6],
-                        bank=data[6],
-                    )
-                    for rule in rules_list:
-                        entry = apply_rule(rule, entry)
-                    db.session.add(entry)
-        elif 'Date,' in form.bulk_data.data or '"Date",' in form.bulk_data.data:
-            for line in form.bulk_data.data.splitlines():
-                data = line.split(",")
-                if data != "" and 'Date' not in data[0]:
-                    data = [item.replace('"', '') for item in data]
-                    entry = Transactions(
-                        date=datetime.strptime(data[0], "%m/%d/%Y").date(),
-                        description=data[1],
-                        amount=data[3],
-                        type=data[4],
-                        category_id=data[5],
-                        account=data[6],
-                        bank=data[6],
-                    )
-                    for rule in rules_list:
-                        entry = apply_rule(rule, entry)
-                    db.session.add(entry)
+        for data in csv.reader(form.bulk_data.data.splitlines(), delimiter='\t' if '\t' in form.bulk_data.data else ','):
+            if data != "" and "Date" not in data[0]:
+                entry = Transactions(
+                    id=random.random()*10000,
+                    date=datetime.strptime(data[0], "%m/%d/%Y").date(),
+                    description=data[1],
+                    amount=data[3],
+                    type=data[4],
+                    category_id=data[5],
+                    bank_account_id=data[6],
+                )
+                for rule in rules_list:
+                    entry = apply_rule(rule, entry)
+                db.session.add(entry)
 
         flash(
             f"{len(db.session.new)} entries has been added", "success"
