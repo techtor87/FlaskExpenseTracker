@@ -10,7 +10,7 @@ from application.models import Transactions, Category
 
 bp = Blueprint('bp_budget', __name__)
 
-@bp.route('/budget')
+@bp.route('/budget', methods=['GET', 'POST'])
 def budget():
     if form_date := request.form.get("start_date"):
         start_date = datetime.strptime(form_date, "%Y-%m")
@@ -24,13 +24,14 @@ def budget():
 
     return render_template('budget.html', start_date=start_date.strftime("%Y-%m"), end_date=end_date.strftime("%Y-%m"))
 
-@bp.route('/budget/data/<start_date>/<end_date>', methods=['GET'])
+@bp.route('/budget/data/<start_date>/<end_date>', methods=['GET', 'POST'])
 def get_account_data(start_date, end_date):
     start_date = datetime.strptime(start_date, "%Y-%m")
     end_date = datetime.strptime(end_date, "%Y-%m")
 
     entries = (
-        db.session.execute(select(Transactions.category_id, Category.type, func.sum(Transactions.amount))
+        db.session.execute(
+            select(text('strftime("%m-%Y", `date`)'), Transactions.category_id, func.sum(Transactions.amount))
         .join(Category)
         .filter(
             Transactions.date >= start_date,
@@ -40,7 +41,7 @@ def get_account_data(start_date, end_date):
         .order_by(Category.type))
         .all()
     )
-    budgets_list = [row.as_dict() for row in entries]
+    budgets_list = [row._asdict() for row in entries]
 
     category_data = Category.query.all()
     category_types = {category.type for category in category_data}

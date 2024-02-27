@@ -1,16 +1,19 @@
 {% extends 'layout.html' %}
 {% block content %}
-    <div style="display: flex; flex-direction: row">
-        <Button onClick="addRow(undefined)">Add Row</Button>
-        <Button onClick="deleteRow()">Delete Row</Button>
+<div class="flex flex-wrap justify-center lg:w-2/5 lg:p-2">
+    <div class="space-x-2 m-2" style="display: flex; flex-direction: row">
+        <Button class="bg-gray-900 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded" onClick="addRow(undefined)">Add Row</Button>
+        <Button class="bg-gray-900 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded" onClick="deleteRow()">Delete Row</Button>
     </div>
     <div id="category_table" class="ag-theme-quartz-dark" style="width: 95vw; height: 85vh"></div>
-    <br>
-    <div style="display: flex; flex-direction: row">
-        <Button onClick="addRow(undefined)">Add Row</Button>
-        <Button onClick="deleteRow()">Delete Row</Button>
+</div>
+<div class="flex flex-wrap justify-center lg:w-3/5 lg:p-2">
+    <div class="space-x-2 m-2" style="display: flex; flex-direction: row">
+        <Button class="bg-gray-900 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded" onClick="addRow(undefined)">Add Row</Button>
+        <Button class="bg-gray-900 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded" onClick="deleteRow()">Delete Row</Button>
     </div>
     <div id="rules_table" class="ag-theme-quartz-dark" style="width: 95vw; height: 85vh"></div>
+</div>
     <script type="text/javascript" src="static/js/category_management.js"></script>
     <script type="text/javascript" src="static/js/rules_management.js"></script>
 {% endblock %}

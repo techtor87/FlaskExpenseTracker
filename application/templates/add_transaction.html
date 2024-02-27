@@ -1,58 +1,58 @@
 {% extends 'layout.html' %}
 {% block content %}
-<div class="col-xs-10 col-sm-6 md:w-1/2 pr-4 pl-4">
+<div class="sm:w-4/5 pr-4 pl-4 sm:w-1/2 pr-4 pl-4 md:w-1/2 pr-4 pl-4">
     <div class="relative flex flex-col min-w-0 rounded break-words border bg-white border-1 border-gray-300 card-style mb-2">
         <div class="flex-auto p-6">
             <form action="" method="POST">
                 {{ form.csrf_token() }}
-                <fieldset class="form-group">
-                    <legend class="mb-4">Add Single Transaction</legend>
-                    <div class="form-group">
+                <fieldset class="mb-3">
+                    <legend class="mb-3 text-xl font-bold">Add Single Transaction</legend>
+                    <div class="mb-3">
                         {{ form.date.label(class = "form-control-label") }}
-                        {{ form.date(class = "form-control form-control-sm") }}
+                        {{ form.date(class = "block appearance-none w-full py-1 px-2 mb-1 text-base leading-normal bg-white text-gray-800 border border-gray-200 rounded py-1 px-2 text-sm leading-normal rounded") }}
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         {{ form.description.label(class = "form-control-label") }}
-                        {{ form.description(class = "form-control form-control-sm") }}
+                        {{ form.description(class = "block appearance-none w-full py-1 px-2 mb-1 text-base leading-normal bg-white text-gray-800 border border-gray-200 rounded py-1 px-2 text-sm leading-normal rounded") }}
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         {{ form.amount.label(class="form-control-label") }}
                         {% if form.amount.errors %}
-                        {{ form.amount(class="form-control form-control-sm is-invalid") }}
+                        {{ form.amount(class="block appearance-none w-full py-1 px-2 mb-1 text-base leading-normal bg-white text-gray-800 border border-gray-200 rounded py-1 px-2 text-sm leading-normal rounded is-invalid") }}
                         {% for error in form.amount.errors %}
                         <div class="invalid-feedback">
                             <span>{{error}}</span>
                         </div>
                         {% endfor %}
                         {% else %}
-                        {{ form.amount(class="form-control form-control-sm") }}
+                        {{ form.amount(class="block appearance-none w-full py-1 px-2 mb-1 text-base leading-normal bg-white text-gray-800 border border-gray-200 rounded py-1 px-2 text-sm leading-normal rounded") }}
                         {% endif %}
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         {{ form.type.label(class = "form-control-label") }}
-                        {{ form.type(class = "form-control form-control-sm") }}
+                        {{ form.type(class = "block appearance-none w-full py-1 px-2 mb-1 text-base leading-normal bg-white text-gray-800 border border-gray-200 rounded py-1 px-2 text-sm leading-normal rounded") }}
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         {{ form.category.label(class = "form-control-label") }}
-                        {{ form.category(class = "form-control form-control-sm") }}
+                        {{ form.category(class = "block appearance-none w-full py-1 px-2 mb-1 text-base leading-normal bg-white text-gray-800 border border-gray-200 rounded py-1 px-2 text-sm leading-normal rounded") }}
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         {{ form.account.label(class = "form-control-label") }}
-                        {{ form.account(class = "form-control form-control-sm") }}
+                        {{ form.account(class = "block appearance-none w-full py-1 px-2 mb-1 text-base leading-normal bg-white text-gray-800 border border-gray-200 rounded py-1 px-2 text-sm leading-normal rounded") }}
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         {{ form.bank.label(class = "form-control-label") }}
-                        {{ form.bank(class = "form-control form-control-sm") }}
+                        {{ form.bank(class = "block appearance-none w-full py-1 px-2 mb-1 text-base leading-normal bg-white text-gray-800 border border-gray-200 rounded py-1 px-2 text-sm leading-normal rounded") }}
                     </div>
 
-                    <div class="form-group border-bottom pb-3">
-                        {{ form.submit(class="btn btn-outline-info")}}
+                    <div class="mb-3 border-b pb-3">
+                        {{ form.submit(class="inline-block align-middle text-center select-none border font-normal whitespace-no-wrap rounded py-1 px-3 leading-normal no-underline text-teal-500 border-teal-500 hover:bg-teal-500 hover:text-white bg-white hover:bg-teal-600")}}
                     </div>
                 </fieldset>
             </form>

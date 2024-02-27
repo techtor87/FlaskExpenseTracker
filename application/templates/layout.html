@@ -47,9 +47,9 @@
                         {% if start_date is defined %}
                         <form class="inline-block py-1 " method="POST">
                             <label for="start_date"></label>
-                            <input class="mx-1" type="month" id="start_date" name="start_date" value="{{ start_date }}" required onchange="this.form.submit()" />
+                            <input class="mx-1 text-black" type="month" id="start_date" name="start_date" value="{{ start_date }}" required onchange="this.form.submit()" />
                             <label for="end_date" class="mb-0"> To </label>
-                            <input class="mx-1" type="month" id="end_date" name="end_date" value="{{ end_date }}" required onchange="this.form.submit()" />
+                            <input class="mx-1 text-black" type="month" id="end_date" name="end_date" value="{{ end_date }}" required onchange="this.form.submit()" />
                         </form>
                         {% endif %}
                         <div class="flex-grow" id="navbarNavAltMarkup">

@@ -15,9 +15,6 @@ const groupColDefs = [
 
 const gridOptions = {
     pagination: true,
-    editType: 'fullRow',
-    undoRedoCellEditing: true,
-    undoRedoCellEditingLimit: 40,
     columnDefs: groupColDefs,
     defaultColDef: {
         // flex:1,

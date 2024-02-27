@@ -1,21 +1,19 @@
 {% extends 'layout.html' %}
 {% block content %}
-<div class="col-xs-10 col-sm-6 md:w-1/2 pr-4 pl-4">
-    <h2>Import Transactions</h2>
-    <div class="relative flex flex-col min-w-0 rounded break-words border bg-white border-1 border-gray-300 card-style mb-2">
+<div class="h-full w-full px-3">
+    <div class="relative flex flex-col min-w-0 rounded break-words border bg-white border-1 border-gray-300 mb-2">
         <div class="flex-auto p-6">
             <form action="" method="POST">
                 {{ form.csrf_token() }}
-                <fieldset class="form-group">
-                    <legend class="mb-4">Expenses And Incomes</legend>
+                <fieldset >
+                    <legend class="mb-4 text-xl font-bold">Import Transactions</legend>
 
-                    <div class="form-group border-bottom pb-3">
-                        {{ form.submit(class="btn btn-outline-info")}}
+                    <div class="border-bottom pb-3">
+                        {{ form.submit(class="inline-block align-middle text-center select-none border font-normal whitespace-no-wrap rounded py-1 px-3 leading-normal no-underline text-teal-500 border-teal-500 hover:bg-teal-500 hover:text-white bg-white hover:bg-teal-600")}}
                     </div>
-
-                    <div class="form-group">
-                        {{ form.bulk_data.label(class = "form-control-label") }}
-                        {{ form.bulk_data(class = "form-control rows=100") }}
+                    <div class="flex flex-col">
+                        {{ form.bulk_data.label(class = "pt-2 pb-2 mb-0 leading-normal") }}
+                        {{ form.bulk_data(class = "block appearance-none w-full py-1 px-2 mb-1 text-base leading-normal bg-white text-gray-800 border border-gray-200 rounded") }}
                     </div>
 
                 </fieldset>
