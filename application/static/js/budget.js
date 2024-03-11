@@ -21,13 +21,12 @@ const gridOptions = {
         editable: false,
         filter: 'agSetColumnFilter',
         menuTabs: ['filterMenuTab'],
-        floatingFilter: false
+        floatingFilter: false,
     },
-    groupDefaultExpanded: 1,
+    alwaysShowHorizontalScroll: true,
     rowSelection: 'single',
-    // onGridReady: autoSizeAll,
     onFirstDataRendered: autoSizeAll,
-    // onGroupExpandedOrCollapsed: autoSizeAll,
+    onColumnGroupOpened: autoSizeAll,
     debug: true,
 };
 
@@ -55,14 +54,15 @@ function updateData() {
         .then(response => {
             for (let type of response.category_list) {
                 let child_group = [{
-                    field: 'total',
-                    columnGroupShow: 'closed'
+                    headerName: 'Total',
+                    columnGroupShow: 'closed',
+                    valueGetter: aggSumFunc,
                 }];
                 for (let children of type.children) {
                     let child = {
                         field: children.name,
                         columnGroupShow: 'open',
-                        filter: 'agNumberFilter'
+                        filter: 'agNumberFilter',
                     }
                     child_group.push(child)
                 }
@@ -70,6 +70,7 @@ function updateData() {
                     headerName: type.type,
                     children: child_group,
                     marryChildren: true,
+                    // openByDefault: true,
                 }
                 groupColDefs.push(newGroup);
             }
@@ -80,3 +81,13 @@ function updateData() {
             console.error(error);
         })
     };
+
+function aggSumFunc(params) {
+    let sum = 0;
+    for (let colData of params.column.parent.children){
+        if (colData.colId in params.data ) {
+            sum += params.data[colData.colId]
+        }
+    }
+    return sum
+}
