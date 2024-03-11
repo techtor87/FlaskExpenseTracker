@@ -6,6 +6,7 @@ const categoryGridOptions = {
     editType: 'fullRow',
     undoRedoCellEditing: true,
     undoRedoCellEditingLimit: 40,
+    stopEditingWhenCellsLoseFocus: true,
     defaultColDef: {
         flex:1,
         editable: true,

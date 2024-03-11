@@ -10,7 +10,6 @@ from sqlalchemy import func, select, text
 from application import db
 from application.form import BulkDataForm, UserDataForm
 from application.models import Transactions, Category, Rules
-from application.plaid_functions import apply_rule
 
 bp = Blueprint('bp', __name__)
 
@@ -54,7 +53,7 @@ def import_expense():
                     bank_account_id=data[6],
                 )
                 for rule in rules_list:
-                    entry = apply_rule(rule, entry)
+                    entry = rule.apply_rule(entry)
                 db.session.add(entry)
 
         flash(

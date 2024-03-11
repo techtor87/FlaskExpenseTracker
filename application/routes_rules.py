@@ -7,22 +7,26 @@ from sqlalchemy import func, select, update, delete, text, insert
 
 from application import db
 from application.form import BulkDataForm, UserDataForm
-from application.models import Transactions, Rules
+from application.models import Transactions, Rules, Category
 
 bp = Blueprint('bp_rules', __name__)
 
 @bp.route('/rules')
-def categories():
-    return render_template('category_management.html')#, category_list=category_list)
+def rules():
+    return render_template('category_management.html')
 
 @bp.route('/rules/data')
-def get_category_data():
+def get_rules_data():
+    category_list = [r.as_dict()
+        for r
+        in Category.query.all()
+        ]
     rules_list = [r.as_dict() for r in Rules.query.all()]
-    return jsonify(rules_list=rules_list)
+    return jsonify(rules_list=rules_list, category_list=category_list)
 
-@bp.route('/rules/update')
+@bp.route('/rules/update', methods=['POST'])
 def update_row():
-    new_data = json.loads(request.args.get('new_data'))
+    new_data = json.loads(request.form.get('new_data'))
 
     if new_data.get('id'):
         db.session.execute(
@@ -44,13 +48,13 @@ def update_row():
             then_field=new_data.get('then_field', '[empty]'),
             then_statement=new_data.get('then_statement', '[empty]')))
     db.session.commit()
-    return get_category_data()
+    return ''
 
-@bp.route('/rules/delete')
+@bp.route('/rules/delete', methods=['POST'])
 def delete_row():
-    remove_data = json.loads(request.args.get('delete_data'))
+    remove_data = json.loads(request.form.get('delete_data'))
     for row in remove_data:
         entry = Rules.query.get_or_404(row['id'])
         db.session.delete(entry)
     db.session.commit()
-    return get_category_data()
+    return get_rules_data()

@@ -13,7 +13,7 @@ bp = Blueprint('bp_categories', __name__)
 
 @bp.route('/categories')
 def categories():
-    return render_template('category_management.html')#, category_list=category_list)
+    return render_template('category_management.html')
 
 @bp.route('/category/data')
 def get_category_data():

@@ -23,15 +23,11 @@ const gridOptions = {
         menuTabs: ['filterMenuTab'],
         floatingFilter: false
     },
-    // autoGroupColumnDef: {
-    //     field: '',
-    //     cellRenderer: 'agGroupCellRenderer',
-    // },
     groupDefaultExpanded: 1,
     rowSelection: 'single',
-    onGridReady: autoSizeAll,
+    // onGridReady: autoSizeAll,
     onFirstDataRendered: autoSizeAll,
-    onGroupExpandedOrCollapsed: autoSizeAll,
+    // onGroupExpandedOrCollapsed: autoSizeAll,
     debug: true,
 };
 

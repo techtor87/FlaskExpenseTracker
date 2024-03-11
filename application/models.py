@@ -70,3 +70,20 @@ class Rules(db.Model):
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+    def apply_rule(self, transaction):
+        if self.if_field == 'CUSTOM FUNCTION':
+            if eval(self.if_statement):
+                self.exec_rule(transaction)
+
+        if self.if_operation == 'in':
+            if eval(f'{self.if_statement} {self.if_operation} transaction.{self.if_field}'):
+                self.exec_rule(transaction)
+
+        if eval(f'transaction.{self.if_field} {self.if_operation} "{self.if_statement}"'):
+            self.exec_rule(transaction)
+
+        return transaction
+
+    def exec_rule(self, transaction):
+        exec(f'transaction.{self.then_field} = "{self.then_statement}"')

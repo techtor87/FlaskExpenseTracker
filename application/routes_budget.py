@@ -31,17 +31,24 @@ def get_account_data():
 
     entries = (
         db.session.execute(
-            select(text('strftime("%m-%Y", `date`)'), Transactions.category_id, func.sum(Transactions.amount))
+            select(text('strftime("%m-%Y", `date`) as date'), Transactions.category_id, func.sum(Transactions.amount))
         .join(Category)
         .filter(
             Transactions.date >= start_date,
             Transactions.date < end_date,
         )
         .group_by(Transactions.category_id)
-        .order_by(Category.type))
+        .order_by(Transactions.date))
         .all()
     )
-    budgets_list = [row._asdict() for row in entries]
+    budgets_dict = {}
+    for row in entries:
+        budgets_dict.setdefault(row[0], {})[row[1]]= float(row[2])
+
+    budgets_list = []
+    for key, value in budgets_dict.items():
+        value['date'] = key
+        budgets_list.append(value)
 
     category_data = Category.query.all()
     category_types = {category.type for category in category_data}
