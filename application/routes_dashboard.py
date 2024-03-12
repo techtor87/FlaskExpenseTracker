@@ -23,7 +23,6 @@ def dashboard():
     else:
         session['end_date'] = datetime.strftime(datetime.now() + relativedelta(months=1), "%Y-%m")
 
-
     return render_template(
         "dashboard.html"
     )
@@ -37,11 +36,11 @@ def send_dashboard_data():
         db.session.execute(text(
             """SELECT credit.agg_date, credit.income, debit.expense
                     FROM
-                        (SELECT strftime('%m-%Y', date) AS agg_date, SUM(amount) AS income
+                        (SELECT strftime('%Y-%m', date) AS agg_date, SUM(amount) AS income
                         FROM transactions
                         WHERE category_id != 'Transfer' AND category_id != 'EXCLUDE' AND type == 'credit'
                         GROUP BY agg_date) AS credit,
-                        (SELECT strftime('%m-%Y', date) AS agg_date, SUM(amount) AS expense
+                        (SELECT strftime('%Y-%m', date) AS agg_date, SUM(amount) AS expense
                         FROM transactions
                         WHERE category_id != 'Transfer' AND type == 'debit'
                         GROUP BY agg_date) AS debit
@@ -102,7 +101,8 @@ def send_dashboard_data():
             balance_dates[f'{account.bank}-{account.account}'].append({
                 # 'date': balance_item.date.strftime('%m-%d-%Y'),
                 'date': balance_item.date,
-                'value': float(balance_item.value)
+                'value': float(balance_item.value),
+                'retirement': account.retirement
             })
 
     expense_category_data = {'category': [{'category': row[0], 'category_type': row[1], 'total': float(row[2])} for row in category_comparison],

@@ -137,41 +137,70 @@ document.addEventListener('DOMContentLoaded', function () {
                 ],
             };
 
-            let overtime_expenditure_options = {
-                // Container: HTML Element to hold the chart
-                container: document.getElementById('overtime_expenditure_canvas'),
-                title: {text: 'Expense over Time'},
-                // Data: Data to be displayed in the chart
-                data: res.over_time_expenditure,
-                theme: {
-                    overrides: {
-                        line: {
-                            series: {
-                                lineDash: [12, 3],
-                                marker: {
-                                    enabled: false,
-                                },
-                            },
-                        },
-                    },
-                },
-                // Series: Defines which chart type and data to use
-                series: [
-                    {
-                        type: 'line',
-                        xKey: 'date',
-                        yKey: 'total',
-                        tooltip: {
-                            renderer: moneyToolTipRenderer
-                        },
-                    }
-                ],
-            };
+            // let overtime_expenditure_options = {
+            //     // Container: HTML Element to hold the chart
+            //     container: document.getElementById('overtime_expenditure_canvas'),
+            //     title: {text: 'Expense over Time'},
+            //     // Data: Data to be displayed in the chart
+            //     data: res.over_time_expenditure,
+            //     theme: {
+            //         overrides: {
+            //             line: {
+            //                 series: {
+            //                     lineDash: [12, 3],
+            //                     marker: {
+            //                         enabled: false,
+            //                     },
+            //                 },
+            //             },
+            //         },
+            //     },
+            //     // Series: Defines which chart type and data to use
+            //     series: [
+            //         {
+            //             type: 'line',
+            //             xKey: 'date',
+            //             yKey: 'total',
+            //             tooltip: {
+            //                 renderer: moneyToolTipRenderer
+            //             },
+            //         }
+            //     ],
+            // };
 
             let net_worth_options = {
                 // Container: HTML Element to hold the chart
                 container: document.getElementById('net_worth_canvas'),
                 title: {text: 'Account Balances over Time'},
+                // Data: Data to be displayed in the chart
+                data: res.net_worth_data,
+                navigator: {
+                    enabled: true,
+                    height: 15,
+                },
+                axes: [
+                    {
+                        type: "time",
+                        position: "bottom",
+                        label: {
+                            format: '%Y-%m-%d',
+                        },
+                    },
+                    {
+                        type: "number",
+                        position: "left",
+                        label: {
+                            format: "$ #{.2f}",
+                        },
+                    },
+                ],
+                series: [],
+            };
+
+            let retirement_net_worth_options = {
+                // Container: HTML Element to hold the chart
+                container: document.getElementById('retirement_balances_canvas'),
+                title: {text: 'Retirement Balances over Time'},
                 // Data: Data to be displayed in the chart
                 data: res.net_worth_data,
                 navigator: {
@@ -211,12 +240,17 @@ document.addEventListener('DOMContentLoaded', function () {
                         renderer: balanceToolTipRenderer
                     },
                 }
-                net_worth_options.series.push(newLine)
+                if (res.net_worth_data[account][0].retirement) {
+                    retirement_net_worth_options.series.push(newLine)
+                } else {
+                    net_worth_options.series.push(newLine)
+                }
             }
 
             const income_expense_chart = agCharts.AgCharts.create(income_vs_expense_options);
             const expense_category_chart = agCharts.AgCharts.create(expense_vs_category_options);
-            const time_expense_chart = agCharts.AgCharts.create(overtime_expenditure_options);
+            // const time_expense_chart = agCharts.AgCharts.create(overtime_expenditure_options);
             const net_worth_chart = agCharts.AgCharts.create(net_worth_options);
+            const retirement_net_worth_chart = agCharts.AgCharts.create(retirement_net_worth_options);
     })
 });
