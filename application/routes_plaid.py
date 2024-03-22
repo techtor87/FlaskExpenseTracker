@@ -134,7 +134,7 @@ def create_link_token():
     try:
         request = LinkTokenCreateRequest(
             products=app.products,
-            client_name="Plaid Quickstart",
+            client_name="Personal Budget Tracker",
             country_codes=list(map(lambda x: CountryCode(x), app.PLAID_COUNTRY_CODES)),
             language='en',
             user=LinkTokenCreateRequestUser(

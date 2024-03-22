@@ -20,6 +20,7 @@ packaging==23.2
 plaid-python==18.4.0
 pycurl==7.45.2
 pymongo==4.6.1
+pyopenssl
 pyparsing==3.1.1
 PySimpleSOAP==1.16.2
 python-dateutil==2.8.2
