@@ -54,6 +54,8 @@ if PLAID_ENV == 'development':
 if PLAID_ENV == 'production':
     host = plaid.Environment.Production
 
+# We store the access_token in memory - in production, store it in a secure
+# persistent data store.
 if (access_token := os.getenv('PLAID_ACCESS_TOKEN')) == '':
    access_token = None
 
@@ -82,9 +84,6 @@ for product in PLAID_PRODUCTS:
     products.append(Products(product))
 
 
-# We store the access_token in memory - in production, store it in a secure
-# persistent data store.
-access_token = None
 # The payment_id is only relevant for the UK Payment Initiation product.
 # We store the payment_id in memory - in production, store it in a secure
 # persistent data store.
